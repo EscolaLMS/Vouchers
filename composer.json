@@ -1,0 +1,50 @@
+{
+  "name": "escolalms/vouchers",
+  "description": "Escola LMS Vouchers",
+  "type": "package",
+  "require": {
+    "php": "^7.4|^8.0",
+    "escolalms/cart": "^0.1.17",
+    "escolalms/core": "^1.2"
+  },
+  "require-dev": {
+    "escolalms/settings": "^0.1.91",
+    "orchestra/testbench": "^5.0|^6.0",
+    "phpunit/phpunit": "^9.0"
+  },
+  "suggest": {},
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Paweł Chołaj",
+      "email": "pawel.cholaj@escola.pl"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "EscolaLms\\Vouchers\\": "src",
+      "EscolaLms\\Vouchers\\Tests\\": "tests",
+      "Database\\Factories\\EscolaLms\\Vouchers\\Models\\": "database/factories",
+      "EscolaLms\\Vouchers\\Database\\Seeders\\": "database/seeders"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "EscolaLms\\Vouchers\\EscolaLmsVouchersServiceProvider"
+      ]
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "@php ./vendor/bin/testbench package:discover --ansi"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": false,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

@@ -21,3 +21,13 @@ Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
+
+#
+
+.DS_Store
+.idea
+/nbproject/
+/bootstrap/
+/env/docker/
+composer.lock
+openapi.json
