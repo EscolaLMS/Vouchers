@@ -1,4 +1,4 @@
-2<?php
+<?php
 
 use EscolaLms\Vouchers\Enums\CouponTypeEnum;
 use Illuminate\Database\Migrations\Migration;
@@ -23,7 +23,7 @@ class CreateCouponsTable extends Migration
 
             $table->string('type')->default(CouponTypeEnum::PRODUCT_PERCENT);
 
-            $table->boolean('exclusive')->default(false);
+            $table->boolean('exclusive')->default(true);
 
             $table->datetime('active_from')->nullable();
             $table->datetime('active_to')->nullable();
@@ -37,7 +37,6 @@ class CreateCouponsTable extends Migration
             $table->unsignedInteger('amount');
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

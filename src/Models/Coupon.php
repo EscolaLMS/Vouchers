@@ -6,13 +6,12 @@ use EscolaLms\Vouchers\Enums\CouponTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\App;
 use NumberFormatter;
 
 class Coupon extends Model
 {
-    use SoftDeletes, HasFactory;
+    use HasFactory;
 
     public $guarded = ['id'];
 
@@ -54,5 +53,15 @@ class Coupon extends Model
     public function excludedProducts(): HasMany
     {
         return $this->products()->where('excluded', true);
+    }
+
+    public function carts(): HasMany
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 }
