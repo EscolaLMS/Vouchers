@@ -241,7 +241,6 @@ class UserVoucherTest extends TestCase
             'product_type' => $course->getMorphClass(),
             'excluded' => false,
         ]));
-        //dd($coupon->includedProducts->toArray());
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertOk();
@@ -330,7 +329,6 @@ class UserVoucherTest extends TestCase
             'product_type' => $course->getMorphClass(),
             'excluded' => false,
         ]));
-        //dd($coupon->includedProducts->toArray());
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertOk();
