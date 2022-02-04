@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Treestoneit\ShoppingCart\Buyable;
 use Treestoneit\ShoppingCart\Models\CartItem;
 
 class CouponsService implements CouponsServiceContract
@@ -33,20 +34,24 @@ class CouponsService implements CouponsServiceContract
         ]);
         $coupon->save();
         foreach ($data['included_products'] ?? [] as $product) {
-            CouponProduct::create([
-                'coupon_id' => $coupon->getKey(),
-                'product_id' => $product['id'],
-                'product_type' => $product['class'],
-                'excluded' => false,
-            ]);
+            if ($product instanceof Buyable) {
+                CouponProduct::create([
+                    'coupon_id' => $coupon->getKey(),
+                    'product_id' => $product['id'],
+                    'product_type' => $product['class'],
+                    'excluded' => false,
+                ]);
+            }
         }
         foreach ($data['excluded_products'] ?? []  as $product) {
-            CouponProduct::create([
-                'coupon_id' => $coupon->getKey(),
-                'product_id' => $product['id'],
-                'product_type' => $product['class'],
-                'excluded' => true,
-            ]);
+            if ($product instanceof Buyable) {
+                CouponProduct::create([
+                    'coupon_id' => $coupon->getKey(),
+                    'product_id' => $product['id'],
+                    'product_type' => $product['class'],
+                    'excluded' => true,
+                ]);
+            }
         }
         foreach ($data['emails'] ?? []  as $email) {
             CouponEmail::create([
@@ -63,23 +68,27 @@ class CouponsService implements CouponsServiceContract
             CouponProduct::where('coupon_id', $coupon->getKey())->where('excluded', false)->delete();
         }
         foreach ($data['included_products'] ?? [] as $product) {
-            CouponProduct::create([
-                'coupon_id' => $coupon->getKey(),
-                'product_id' => $product['id'],
-                'product_type' => $product['class'],
-                'excluded' => false,
-            ]);
+            if ($product instanceof Buyable) {
+                CouponProduct::create([
+                    'coupon_id' => $coupon->getKey(),
+                    'product_id' => $product['id'],
+                    'product_type' => $product['class'],
+                    'excluded' => false,
+                ]);
+            }
         }
         if (isset($data['excluded_products'])) {
             CouponProduct::where('coupon_id', $coupon->getKey())->where('excluded', true)->delete();
         }
         foreach ($data['excluded_products'] ?? [] as $product) {
-            CouponProduct::create([
-                'coupon_id' => $coupon->getKey(),
-                'product_id' => $product['id'],
-                'product_type' => $product['class'],
-                'excluded' => true,
-            ]);
+            if ($product instanceof Buyable) {
+                CouponProduct::create([
+                    'coupon_id' => $coupon->getKey(),
+                    'product_id' => $product['id'],
+                    'product_type' => $product['class'],
+                    'excluded' => true,
+                ]);
+            }
         }
         if (isset($data['emails'])) {
             CouponEmail::where('coupon_id', $coupon->getKey())->delete();
