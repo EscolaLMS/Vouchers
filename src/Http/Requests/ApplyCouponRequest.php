@@ -6,20 +6,22 @@ use EscolaLms\Vouchers\Models\Coupon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
-class ReadCouponRequest extends FormRequest
+class ApplyCouponRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('view', $this->getCoupon());
+        return Gate::allows('apply', $this->getCoupon());
     }
 
     public function rules(): array
     {
-        return [];
+        return [
+            'code' => 'string'
+        ];
     }
 
     public function getCoupon(): Coupon
     {
-        return Coupon::findOrFail($this->route('id'));
+        return Coupon::where('code', $this->input('code'))->firstOrFail();
     }
 }

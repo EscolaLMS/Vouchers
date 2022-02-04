@@ -25,9 +25,9 @@ class CouponResource extends JsonResource
             'min_cart_price' => $this->min_cart_price,
             'max_cart_price' =>  $this->max_cart_price,
             'amount' =>  $this->amount,
-            'included_products' => $this->includedProducts,
-            'excluded_products' => $this->excludedProducts,
-            'emails' => $this->emails,
+            'included_products' => CouponProductResource::collection($this->includedProducts),
+            'excluded_products' => CouponProductResource::collection($this->excludedProducts),
+            'emails' => CouponEmailResource::collection($this->emails),
         ];
     }
 }

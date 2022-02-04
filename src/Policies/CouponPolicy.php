@@ -41,7 +41,7 @@ class CouponPolicy
 
     public function delete(User $user, Coupon $coupon)
     {
-        return $user->can(VoucherPermissionsEnum::COUPON_DELETE) && $coupon->orders()->count() === 0;
+        return $user->can(VoucherPermissionsEnum::COUPON_DELETE);
     }
 
     public function apply(User $user, Coupon $coupon)

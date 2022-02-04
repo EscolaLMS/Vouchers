@@ -1,10 +1,13 @@
 <?php
 
-namespace EscolaLms\TemplatesEmail\Tests;
+namespace EscolaLms\Vouchers\Tests;
 
 use EscolaLms\Cart\CartServiceProvider;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\TestCase as CoreTestCase;
+use EscolaLms\Courses\EscolaLmsCourseServiceProvider;
+use EscolaLms\Payments\Providers\PaymentsServiceProvider;
+use EscolaLms\Scorm\EscolaLmsScormServiceProvider;
 use EscolaLms\Vouchers\EscolaLmsVouchersServiceProvider;
 use Laravel\Passport\PassportServiceProvider;
 use Spatie\Permission\PermissionServiceProvider;
@@ -22,6 +25,9 @@ class TestCase extends CoreTestCase
             ...parent::getPackageProviders($app),
             PermissionServiceProvider::class,
             PassportServiceProvider::class,
+            PaymentsServiceProvider::class,
+            EscolaLmsScormServiceProvider::class,
+            EscolaLmsCourseServiceProvider::class,
             CartServiceProvider::class,
             EscolaLmsVouchersServiceProvider::class,
         ];

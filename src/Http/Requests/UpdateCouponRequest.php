@@ -12,7 +12,7 @@ class UpdateCouponRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('update', Coupon::class);
+        return Gate::allows('update', $this->getCoupon());
     }
 
     public function rules(): array
@@ -28,14 +28,21 @@ class UpdateCouponRequest extends FormRequest
             'min_cart_price' => ['integer', 'nullable'],
             'max_cart_price' => ['integer', 'nullable'],
             'amount' => ['required', 'integer'],
-            'include_products' => ['array'],
-            'include_products.*' => ['sometimes', 'array'],
-            'include_products.*.class' => ['string'],
-            'include_products.*.id' => ['integer'],
-            'exclude_products' => ['array'],
-            'exclude_products.*' => ['sometimes', 'array'],
-            'exclude_products.*.class' => ['string'],
-            'exclude_products.*.id' => ['integer'],
+            'included_products' => ['array'],
+            'included_products.*' => ['sometimes', 'array'],
+            'included_products.*.class' => ['string'],
+            'included_products.*.id' => ['integer'],
+            'excluded_products' => ['array'],
+            'excluded_products.*' => ['sometimes', 'array'],
+            'excluded_products.*.class' => ['string'],
+            'excluded_products.*.id' => ['integer'],
+            'emails' => ['array'],
+            'emails.*' => ['sometimes', 'string'],
         ];
+    }
+
+    public function getCoupon(): Coupon
+    {
+        return Coupon::findOrFail($this->route('id'));
     }
 }
