@@ -33,6 +33,7 @@ class CouponsService implements CouponsServiceContract
             'amount' => $data['amount'],
         ]);
         $coupon->save();
+
         foreach ($data['included_products'] ?? [] as $product) {
             if ($product instanceof Buyable) {
                 CouponProduct::create([
@@ -59,6 +60,7 @@ class CouponsService implements CouponsServiceContract
                 'email' => $email,
             ]);
         }
+
         return $coupon->refresh();
     }
 
@@ -99,11 +101,14 @@ class CouponsService implements CouponsServiceContract
                 'email' => $email,
             ]);
         }
+
         unset($data['emails']);
         unset($data['included_products']);
         unset($data['excluded_products']);
+
         $coupon->fill($data);
         $coupon->save();
+
         return $coupon->refresh();
     }
 

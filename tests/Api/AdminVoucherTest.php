@@ -55,13 +55,13 @@ class AdminVoucherTest extends TestCase
         $data['excluded_products'] = [
             [
                 'id' => $course->getKey(),
-                'class' => $course->getMorphClass()
+                'class' => get_class($course),
             ]
         ];
         $data['included_products'] = [
             [
                 'id' => $course2->getKey(),
-                'class' => $course2->getMorphClass()
+                'class' => get_class($course2),
             ]
         ];
         $data['emails'] = [
