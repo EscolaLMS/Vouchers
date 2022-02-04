@@ -2,9 +2,9 @@
 
 namespace EscolaLms\Vouchers\Strategies\Contracts;
 
-use EscolaLms\Vouchers\Services\ShopService;
+use EscolaLms\Vouchers\Models\Cart;
 
 interface DiscountStrategyContract
 {
-    public function calculateDiscount(ShopService $shopService, ?int $taxRate = null): int;
+    public function calculateDiscount(Cart $cart, ?int $taxRate = null): int;
 }

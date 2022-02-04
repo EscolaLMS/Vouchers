@@ -24,7 +24,7 @@
     "psr-4": {
       "EscolaLms\\Vouchers\\": "src",
       "EscolaLms\\Vouchers\\Tests\\": "tests",
-      "Database\\Factories\\EscolaLms\\Vouchers\\Models\\": "database/factories",
+      "EscolaLms\\Vouchers\\Database\\Factories\\": "database/factories",
       "EscolaLms\\Vouchers\\Database\\Seeders\\": "database/seeders"
     }
   },

@@ -1,35 +1,32 @@
 <?php
 
-use EscolaLms\Vouchers\Enums\CouponTypeEnum;
+use EscolaLms\Vouchers\Models\Coupon;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCouponsProductsTable extends Migration
+class CreateCouponProductsTable extends Migration
 {
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('coupons_products', function (Blueprint $table) {
+        Schema::create('coupon_products', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Coupon::class);
             $table->morphs('product');
-            $table->boolean('exclude')->default(false);
+            $table->boolean('excluded')->default(false);
+            $table->timestamps();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::drop('coupons_products');
+        Schema::drop('coupon_products');
     }
 }

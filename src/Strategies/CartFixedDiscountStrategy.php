@@ -2,13 +2,13 @@
 
 namespace EscolaLms\Vouchers\Strategies;
 
-use EscolaLms\Vouchers\Services\ShopService;
+use EscolaLms\Vouchers\Models\Cart;
 use EscolaLms\Vouchers\Strategies\Abstracts\DiscountStrategy;
 use EscolaLms\Vouchers\Strategies\Contracts\DiscountStrategyContract;
 
 class CartFixedDiscountStrategy extends DiscountStrategy implements DiscountStrategyContract
 {
-    public function calculateDiscount(ShopService $shopService, ?int $taxRate = null): int
+    public function calculateDiscount(Cart $cart, ?int $taxRate = null): int
     {
         return $this->coupon->amount;
     }

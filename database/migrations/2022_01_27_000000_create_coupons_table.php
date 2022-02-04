@@ -1,4 +1,4 @@
-2<?php
+<?php
 
 use EscolaLms\Vouchers\Enums\CouponTypeEnum;
 use Illuminate\Database\Migrations\Migration;
@@ -10,10 +10,8 @@ class CreateCouponsTable extends Migration
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
@@ -21,9 +19,9 @@ class CreateCouponsTable extends Migration
             $table->string('name')->nullable();
             $table->string('code')->unique();
 
-            $table->string('type')->default(CouponTypeEnum::PRODUCT_PERCENT);
+            $table->boolean('active')->default(true);
 
-            $table->boolean('exclusive')->default(false);
+            $table->string('type')->default(CouponTypeEnum::PRODUCT_PERCENT);
 
             $table->datetime('active_from')->nullable();
             $table->datetime('active_to')->nullable();
@@ -37,16 +35,13 @@ class CreateCouponsTable extends Migration
             $table->unsignedInteger('amount');
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::drop('coupons');
     }
