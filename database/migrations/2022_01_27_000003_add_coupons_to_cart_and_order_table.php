@@ -15,10 +15,11 @@ class AddCouponsToCartAndOrderTable extends Migration
     public function up()
     {
         Schema::table('carts', function (Blueprint $table) {
-            $table->foreignId(Coupon::class)->nullable();
+            $table->foreignIdFor(Coupon::class)->nullable();
         });
         Schema::table('orders', function (Blueprint $table) {
-            $table->foreignId(Coupon::class)->nullable();
+            $table->foreignIdFor(Coupon::class)->nullable();
+            $table->unsignedInteger('discount')->default(0);
         });
     }
 
@@ -30,6 +31,7 @@ class AddCouponsToCartAndOrderTable extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('discount');
             $table->dropColumn('coupon_id');
         });
         Schema::table('carts', function (Blueprint $table) {

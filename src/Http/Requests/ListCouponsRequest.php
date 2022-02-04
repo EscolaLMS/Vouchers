@@ -10,7 +10,7 @@ class ListCouponsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('list', Coupon::class);
+        return Gate::allows('viewAny', Coupon::class);
     }
 
     public function rules(): array

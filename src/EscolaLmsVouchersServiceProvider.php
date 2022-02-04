@@ -3,9 +3,16 @@
 namespace EscolaLms\Vouchers;
 
 use EscolaLms\Cart\Services\Contracts\ShopServiceContract;
+use EscolaLms\Cart\Services\ShopService as CartShopService;
+use EscolaLms\Vouchers\Models\Cart;
+use EscolaLms\Vouchers\Providers\AuthServiceProvider;
+use EscolaLms\Vouchers\Repositories\Contracts\CouponsRepositoryContract;
+use EscolaLms\Vouchers\Repositories\CouponsRepository;
+use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
+use EscolaLms\Vouchers\Services\Contracts\ShopWithCouponsServiceContract;
+use EscolaLms\Vouchers\Services\CouponsService;
 use EscolaLms\Vouchers\Services\ShopService;
 use Illuminate\Support\ServiceProvider;
-use EscolaLms\Cart\Services\ShopService as CartShopService;
 
 /**
  * SWAGGER_VERSION
@@ -14,7 +21,14 @@ class EscolaLmsVouchersServiceProvider extends ServiceProvider
 {
     const CONFIG_KEY = 'escolalms_vouchers';
 
-    public $singletons = [];
+    public $singletons = [
+        CouponsServiceContract::class => CouponsService::class,
+        CouponsRepositoryContract::class => CouponsRepository::class,
+    ];
+
+    public $bindings = [
+        ShopWithCouponsServiceContract::class => ShopService::class,
+    ];
 
     public function register()
     {
@@ -22,8 +36,16 @@ class EscolaLmsVouchersServiceProvider extends ServiceProvider
 
         $this->app->extend(ShopServiceContract::class, function ($service, $app) {
             /** @var CartShopService $service */
-            return new ShopService($service->getModel());
+            $cart = $service->getModel();
+            if ($cart->exists) {
+                $cart = Cart::find($cart->getKey());
+            } else {
+                $cart = new Cart($cart->getAttributes());
+            }
+            return new ShopService($cart);
         });
+
+        $this->app->register(AuthServiceProvider::class);
     }
 
     public function boot()

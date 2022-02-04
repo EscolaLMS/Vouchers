@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCouponsEmailsTable extends Migration
+class CreateCouponProductsTable extends Migration
 {
 
     /**
@@ -15,10 +15,12 @@ class CreateCouponsEmailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('coupons_emails', function (Blueprint $table) {
+        Schema::create('coupon_products', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Coupon::class);
-            $table->string('email');
+            $table->morphs('product');
+            $table->boolean('excluded')->default(false);
+            $table->timestamps();
         });
     }
 
@@ -29,6 +31,6 @@ class CreateCouponsEmailsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('coupons_emails');
+        Schema::drop('coupon_products');
     }
 }

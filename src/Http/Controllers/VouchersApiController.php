@@ -3,21 +3,24 @@
 namespace EscolaLms\Vouchers\Http\Controllers;
 
 use EscolaLms\Courses\Http\Controllers\AppBaseController;
-use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
-use EscolaLms\Vouchers\Services\Contracts\ShopWithCouponsServiceContract;
+use EscolaLms\Vouchers\Exceptions\CouponInactiveException;
+use EscolaLms\Vouchers\Exceptions\CouponNotApplicableException;
+use EscolaLms\Vouchers\Http\Controllers\Swagger\VouchersApiControllerSwagger;
+use EscolaLms\Vouchers\Http\Requests\ApplyCouponRequest;
+use EscolaLms\Vouchers\Services\ShopService;
+use Illuminate\Http\JsonResponse;
 
-class VouchersApiController extends AppBaseController
+class VouchersApiController extends AppBaseController implements VouchersApiControllerSwagger
 {
-    private ShopWithCouponsServiceContract $shopService;
-    private CouponsServiceContract $couponsService;
-
-    public function __construct(ShopWithCouponsServiceContract $shopService, CouponsServiceContract $couponsService)
+    public function apply(ApplyCouponRequest $request): JsonResponse
     {
-        $this->shopService = $shopService;
-        $this->couponsService = $couponsService;
-    }
-
-    public function apply()
-    {
+        try {
+            ShopService::fromUserId($request->user())->setCoupon($request->getCoupon());
+        } catch (CouponInactiveException $ex) {
+            return $this->sendError($ex->getMessage(), 403);
+        } catch (CouponNotApplicableException $ex) {
+            return $this->sendError($ex->getMessage(), 400);
+        }
+        return $this->sendSuccess(__("Coupon added to cart"));
     }
 }

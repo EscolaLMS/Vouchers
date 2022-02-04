@@ -10,9 +10,7 @@ class DeleteCouponRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $coupon = $this->getCoupon();
-
-        return $coupon && Gate::allows('delete', $coupon);
+        return Gate::allows('delete', $this->getCoupon());
     }
 
     public function rules(): array
@@ -22,6 +20,6 @@ class DeleteCouponRequest extends FormRequest
 
     public function getCoupon(): Coupon
     {
-        return Coupon::find($this->route('id'));
+        return Coupon::findOrFail($this->route('id'));
     }
 }

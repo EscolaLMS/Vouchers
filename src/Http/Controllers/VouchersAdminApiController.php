@@ -9,44 +9,46 @@ use EscolaLms\Vouchers\Http\Requests\ListCouponsRequest;
 use EscolaLms\Vouchers\Http\Requests\ReadCouponRequest;
 use EscolaLms\Vouchers\Http\Requests\UpdateCouponRequest;
 use EscolaLms\Vouchers\Http\Resources\CouponResource;
+use EscolaLms\Vouchers\Repositories\Contracts\CouponsRepositoryContract;
 use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
-use EscolaLms\Vouchers\Services\Contracts\ShopWithCouponsServiceContract;
-use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class VouchersAdminApiController extends AppBaseController
 {
-    private ShopWithCouponsServiceContract $shopService;
+    private CouponsRepositoryContract $couponsRepository;
     private CouponsServiceContract $couponsService;
 
-    public function __construct(ShopWithCouponsServiceContract $shopService, CouponsServiceContract $couponsService)
+    public function __construct(CouponsRepositoryContract $couponsRepository, CouponsServiceContract $couponsService)
     {
-        $this->shopService = $shopService;
+        $this->couponsRepository = $couponsRepository;
         $this->couponsService = $couponsService;
     }
 
-    public function index(ListCouponsRequest $request): Response
+    public function index(ListCouponsRequest $request): JsonResponse
     {
-
-        return $this->sendResponseForResource(CouponResource::collection($coupon));
+        return $this->sendResponseForResource(CouponResource::collection($this->couponsRepository->allQuery()->paginate()));
     }
 
-    public function create(CreateCouponRequest $request): Response
+    public function create(CreateCouponRequest $request): JsonResponse
     {
+        $coupon = $this->couponsService->createCoupon($request->validated());
         return $this->sendResponseForResource(CouponResource::make($coupon));
     }
 
-    public function read(ReadCouponRequest $request): Response
+    public function read(ReadCouponRequest $request): JsonResponse
     {
+        return $this->sendResponseForResource(CouponResource::make($request->getCoupon()));
+    }
+
+    public function update(UpdateCouponRequest $request): JsonResponse
+    {
+        $coupon = $this->couponsService->updateCoupon($request->getCoupon(), $request->validated());
         return $this->sendResponseForResource(CouponResource::make($coupon));
     }
 
-    public function update(UpdateCouponRequest $request): Response
+    public function delete(DeleteCouponRequest $request): JsonResponse
     {
-        return $this->sendResponseForResource(CouponResource::make($coupon));
-    }
-
-    public function delete(DeleteCouponRequest $request): Response
-    {
+        $request->getCoupon()->delete();
         return $this->sendSuccess(__('Coupon was deleted'));
     }
 }
