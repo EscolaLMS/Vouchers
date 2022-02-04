@@ -20,6 +20,7 @@ class CreateCouponRequest extends FormRequest
         return [
             'name' => ['string', 'nullable'],
             'code' => ['required', 'string'],
+            'active' => ['boolean'],
             'type' => ['required', Rule::in(CouponTypeEnum::getValues())],
             'active_from' => ['datetime', 'nullable'],
             'active_to' => ['datetime', 'nullable'],

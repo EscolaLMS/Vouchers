@@ -139,7 +139,8 @@ class CouponsService implements CouponsServiceContract
 
     public function couponIsActive(Coupon $coupon): bool
     {
-        return (is_null($coupon->active_from) || Carbon::now()->greaterThanOrEqualTo($coupon->active_from))
+        return $coupon->active
+            && (is_null($coupon->active_from) || Carbon::now()->greaterThanOrEqualTo($coupon->active_from))
             && (is_null($coupon->active_to) || Carbon::now()->lessThanOrEqualTo($coupon->active_to))
             && (is_null($coupon->limit_usage) || $coupon->limit_usage > $this->couponTimesUsed($coupon))
             && (is_null($coupon->limit_per_user) || $coupon->limit_per_user > $this->couponTimesUsedByUser($coupon));

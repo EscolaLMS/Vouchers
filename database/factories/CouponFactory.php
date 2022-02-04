@@ -17,6 +17,7 @@ class CouponFactory extends Factory
         return [
             'name' => $this->faker->word,
             'code' => Str::random(10),
+            'active' => true,
             'active_from' => null,
             'active_to' => null,
             'limit_usage' => null,

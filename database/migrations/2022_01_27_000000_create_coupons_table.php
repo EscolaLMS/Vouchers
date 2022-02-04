@@ -19,6 +19,8 @@ class CreateCouponsTable extends Migration
             $table->string('name')->nullable();
             $table->string('code')->unique();
 
+            $table->boolean('active')->default(true);
+
             $table->string('type')->default(CouponTypeEnum::PRODUCT_PERCENT);
 
             $table->datetime('active_from')->nullable();

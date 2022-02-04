@@ -85,6 +85,7 @@ class Coupon extends Model
     public $guarded = ['id'];
 
     protected $casts = [
+        'active' => 'bool',
         'activated_at' => 'datetime',
         'deactivated_at' => 'datetime',
     ];
