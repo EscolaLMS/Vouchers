@@ -139,8 +139,8 @@ class ShopService extends CartShopService implements ShopWithCouponsServiceContr
         $coupon =  $this->getCoupon();
         if ($coupon) {
             $order->coupon_id = $coupon->getKey();
+            $order->discount = (int) $this->discount();
         }
-        $order->discount = (int) $this->discount();
         $order->save();
 
         return $order;

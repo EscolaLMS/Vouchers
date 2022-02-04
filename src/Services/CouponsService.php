@@ -35,7 +35,7 @@ class CouponsService implements CouponsServiceContract
         $coupon->save();
 
         foreach ($data['included_products'] ?? [] as $product) {
-            if ($product instanceof Buyable) {
+            if (is_a($product['class'], Buyable::class, true)) {
                 CouponProduct::create([
                     'coupon_id' => $coupon->getKey(),
                     'product_id' => $product['id'],
@@ -45,7 +45,7 @@ class CouponsService implements CouponsServiceContract
             }
         }
         foreach ($data['excluded_products'] ?? []  as $product) {
-            if ($product instanceof Buyable) {
+            if (is_a($product['class'], Buyable::class, true)) {
                 CouponProduct::create([
                     'coupon_id' => $coupon->getKey(),
                     'product_id' => $product['id'],
@@ -70,7 +70,7 @@ class CouponsService implements CouponsServiceContract
             CouponProduct::where('coupon_id', $coupon->getKey())->where('excluded', false)->delete();
         }
         foreach ($data['included_products'] ?? [] as $product) {
-            if ($product instanceof Buyable) {
+            if (is_a($product['class'], Buyable::class, true)) {
                 CouponProduct::create([
                     'coupon_id' => $coupon->getKey(),
                     'product_id' => $product['id'],
@@ -83,7 +83,7 @@ class CouponsService implements CouponsServiceContract
             CouponProduct::where('coupon_id', $coupon->getKey())->where('excluded', true)->delete();
         }
         foreach ($data['excluded_products'] ?? [] as $product) {
-            if ($product instanceof Buyable) {
+            if (is_a($product['class'], Buyable::class, true)) {
                 CouponProduct::create([
                     'coupon_id' => $coupon->getKey(),
                     'product_id' => $product['id'],
