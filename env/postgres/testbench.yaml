@@ -11,7 +11,5 @@ providers:
   - Laravel\Passport\PassportServiceProvider
   - EscolaLms\Core\EscolaLmsServiceProvider
   - EscolaLms\Payments\Providers\PaymentsServiceProvider
-  - EscolaLms\Scorm\EscolaLmsScormServiceProvider
-  - EscolaLms\Courses\EscolaLmsCourseServiceProvider
-  - EscolaLms\Cart\CartServiceProvider
+  - EscolaLms\Cart\EscolaLmsCartServiceProvider
   - EscolaLms\Vouchers\EscolaLmsVouchersServiceProvider

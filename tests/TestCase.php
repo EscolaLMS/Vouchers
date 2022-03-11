@@ -2,12 +2,12 @@
 
 namespace EscolaLms\Vouchers\Tests;
 
-use EscolaLms\Cart\CartServiceProvider;
+use EscolaLms\Cart\EscolaLmsCartServiceProvider;
+use EscolaLms\Categories\EscolaLmsCategoriesServiceProvider;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\TestCase as CoreTestCase;
-use EscolaLms\Courses\EscolaLmsCourseServiceProvider;
 use EscolaLms\Payments\Providers\PaymentsServiceProvider;
-use EscolaLms\Scorm\EscolaLmsScormServiceProvider;
+use EscolaLms\Tags\EscolaLmsTagsServiceProvider;
 use EscolaLms\Vouchers\EscolaLmsVouchersServiceProvider;
 use Laravel\Passport\PassportServiceProvider;
 use Spatie\Permission\PermissionServiceProvider;
@@ -26,9 +26,9 @@ class TestCase extends CoreTestCase
             PermissionServiceProvider::class,
             PassportServiceProvider::class,
             PaymentsServiceProvider::class,
-            EscolaLmsScormServiceProvider::class,
-            EscolaLmsCourseServiceProvider::class,
-            CartServiceProvider::class,
+            EscolaLmsCategoriesServiceProvider::class,
+            EscolaLmsTagsServiceProvider::class,
+            EscolaLmsCartServiceProvider::class,
             EscolaLmsVouchersServiceProvider::class,
         ];
         return $providers;

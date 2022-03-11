@@ -2,23 +2,69 @@
 
 namespace EscolaLms\Vouchers\Services;
 
+use EscolaLms\Cart\Models\Product as BaseProduct;
+use EscolaLms\Core\Dtos\OrderDto;
 use EscolaLms\Core\Models\User;
+use EscolaLms\Vouchers\Dtos\CouponSearchDto;
 use EscolaLms\Vouchers\Models\Cart;
 use EscolaLms\Vouchers\Models\Coupon;
 use EscolaLms\Vouchers\Models\CouponEmail;
 use EscolaLms\Vouchers\Models\CouponProduct;
-use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use EscolaLms\Vouchers\Strategies\Contracts\DiscountStrategyContract;
 use EscolaLms\Vouchers\Strategies\NoneDiscountStrategy;
+use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Treestoneit\ShoppingCart\Buyable;
 use Treestoneit\ShoppingCart\Models\CartItem;
 
-class CouponsService implements CouponsServiceContract
+class CouponService implements CouponServiceContract
 {
+    public function searchAndPaginateCoupons(CouponSearchDto $searchDto, ?OrderDto $orderDto = null): LengthAwarePaginator
+    {
+        $query = Coupon::query();
+
+        if (!is_null($searchDto->getName())) {
+            $query->where('name', 'LIKE', $searchDto->getName() . '%');
+        }
+
+        if (!is_null($searchDto->getCode())) {
+            $query->where('code', 'LIKE', Str::upper($searchDto->getCode()) . '%');
+        }
+
+        if (!is_null($searchDto->getType())) {
+            $query->where('type', '=', $searchDto->getType());
+        }
+
+        if (!is_null($searchDto->getActiveFrom())) {
+            $query->whereDate('active_from', '>=', $searchDto->getActiveFrom())
+                ->orWhere(
+                    fn (Builder $subquery) =>
+                    $subquery->whereNull('active_from')
+                        ->whereDate('active_to', '>=', $searchDto->getActiveFrom())
+                );
+        }
+
+        if (!is_null($searchDto->getActiveTo())) {
+            $query->whereDate('active_to', '<=', $searchDto->getActiveFrom())
+                ->orWhere(
+                    fn (Builder $subquery) =>
+                    $subquery->whereNull('active_to')
+                        ->whereDate('active_from', '<=', $searchDto->getActiveFrom())
+                );
+        }
+
+        if (!is_null($orderDto) && !is_null($orderDto->getOrder())) {
+            $query = $query->orderBy($orderDto->getOrderBy(), $orderDto->getOrder());
+        }
+
+        return $query->paginate($searchDto->getPerPage() ?? 15);
+    }
+
     public function createCoupon(array $data): Coupon
     {
         $coupon = new Coupon([
@@ -35,24 +81,18 @@ class CouponsService implements CouponsServiceContract
         $coupon->save();
 
         foreach ($data['included_products'] ?? [] as $product) {
-            if (is_a($product['class'], Buyable::class, true)) {
-                CouponProduct::create([
-                    'coupon_id' => $coupon->getKey(),
-                    'product_id' => $product['id'],
-                    'product_type' => $product['class'],
-                    'excluded' => false,
-                ]);
-            }
+            CouponProduct::create([
+                'coupon_id' => $coupon->getKey(),
+                'product_id' => $product,
+                'excluded' => false,
+            ]);
         }
         foreach ($data['excluded_products'] ?? []  as $product) {
-            if (is_a($product['class'], Buyable::class, true)) {
-                CouponProduct::create([
-                    'coupon_id' => $coupon->getKey(),
-                    'product_id' => $product['id'],
-                    'product_type' => $product['class'],
-                    'excluded' => true,
-                ]);
-            }
+            CouponProduct::create([
+                'coupon_id' => $coupon->getKey(),
+                'product_id' => $product,
+                'excluded' => true,
+            ]);
         }
         foreach ($data['emails'] ?? []  as $email) {
             CouponEmail::create([
@@ -66,37 +106,27 @@ class CouponsService implements CouponsServiceContract
 
     public function updateCoupon(Coupon $coupon, array $data): Coupon
     {
-        if (isset($data['included_products'])) {
-            CouponProduct::where('coupon_id', $coupon->getKey())->where('excluded', false)->delete();
+        if (!isset($data['included_products'])) {
+            $data['included_products'] = $coupon->includedProducts->pluck('id');
         }
-        foreach ($data['included_products'] ?? [] as $product) {
-            if (is_a($product['class'], Buyable::class, true)) {
-                CouponProduct::create([
-                    'coupon_id' => $coupon->getKey(),
-                    'product_id' => $product['id'],
-                    'product_type' => $product['class'],
-                    'excluded' => false,
-                ]);
-            }
+        if (!isset($data['excluded_products'])) {
+            $data['excluded_products'] = $coupon->excludedProducts->pluck('id');
         }
-        if (isset($data['excluded_products'])) {
-            CouponProduct::where('coupon_id', $coupon->getKey())->where('excluded', true)->delete();
-        }
-        foreach ($data['excluded_products'] ?? [] as $product) {
-            if (is_a($product['class'], Buyable::class, true)) {
-                CouponProduct::create([
-                    'coupon_id' => $coupon->getKey(),
-                    'product_id' => $product['id'],
-                    'product_type' => $product['class'],
-                    'excluded' => true,
-                ]);
-            }
-        }
+
+        $sync1 = collect($data['included_products'])
+            ->mapWithKeys(fn ($id) => [$id => ['excluded' => false]]);
+        $sync2 = collect($data['excluded_products'])
+            ->mapWithKeys(fn ($id) => [$id => ['excluded' => true]]);
+
+        $coupon->products()->sync($sync1->merge($sync2));
+
         if (isset($data['emails'])) {
-            CouponEmail::where('coupon_id', $coupon->getKey())->delete();
+            CouponEmail::where('coupon_id', $coupon->getKey())
+                ->whereNotIn('email', $data['emails'])
+                ->delete();
         }
         foreach ($data['emails'] ?? [] as $email) {
-            CouponEmail::create([
+            CouponEmail::query()->firstOrCreate([
                 'coupon_id' => $coupon->getKey(),
                 'email' => $email,
             ]);
@@ -129,9 +159,10 @@ class CouponsService implements CouponsServiceContract
 
     public function couponCanBeUsedOnCart(Coupon $coupon, Cart $cart): bool
     {
-        $shopService = new ShopService($cart);
+        $cartManager = new CartManager($cart);
+
         return $this->couponIsActive($coupon)
-            && $this->couponInPriceRange($coupon, $shopService->totalWithoutDiscount())
+            && $this->couponInPriceRange($coupon, $cartManager->totalPreAdditionalDiscount())
             && $this->cartContainsItemsIncludedInCoupon($coupon, $cart)
             && $this->cartContainsItemsNotExcludedFromCoupon($coupon, $cart)
             && $this->userEmailIncludedInCoupon($coupon);
@@ -159,29 +190,43 @@ class CouponsService implements CouponsServiceContract
 
     public function cartContainsItemsNotExcludedFromCoupon(Coupon $coupon, Cart $cart): bool
     {
-        return $coupon->excludedProducts()->count() === 0
+        return ($coupon->excludedProducts()->count() === 0)
             || $this->cartItemsWithoutExcludedFromCoupon($coupon, $cart)->count() > 0;
     }
 
     public function cartItemsIncludedInCoupon(Coupon $coupon, Cart $cart): Collection
     {
-        return $cart->items->filter(fn (CartItem $item) => $coupon->includedProducts->contains(
-            fn (CouponProduct $product) => $product->product_type === $item->buyable_type && $product->product_id === $item->buyable_id
-        ));
+        return $cart->items->filter(fn (CartItem $item) => $this->cartItemIncludedInCoupon($coupon, $item));
     }
 
     public function cartItemsExcludedFromCoupon(Coupon $coupon, Cart $cart): Collection
     {
-        return $cart->items->filter(fn (CartItem $item) => $coupon->excludedProducts->contains(
-            fn (CouponProduct $product) => $product->product_type === $item->buyable_type && $product->product_id === $item->buyable_id
-        ));
+        return $cart->items->filter(fn (CartItem $item) => $this->cartItemExcludedFromCoupon($coupon, $item));
     }
 
     public function cartItemsWithoutExcludedFromCoupon(Coupon $coupon, Cart $cart): Collection
     {
-        return $cart->items->filter(fn (CartItem $item) => !$coupon->excludedProducts->contains(
-            fn (CouponProduct $product) => $product->product_type === $item->buyable_type && $product->product_id === $item->buyable_id
-        ));
+        return $cart->items->filter(fn (CartItem $item) => !$this->cartItemExcludedFromCoupon($coupon, $item));
+    }
+
+    public function cartItemIncludedInCoupon(Coupon $coupon, CartItem $item): bool
+    {
+        return $this->productIncludedInCoupon($coupon, $item->buyable);
+    }
+
+    public function productIncludedInCoupon(Coupon $coupon, BaseProduct $product): bool
+    {
+        return $coupon->includedProducts->contains($product);
+    }
+
+    public function cartItemExcludedFromCoupon(Coupon $coupon, CartItem $item): bool
+    {
+        return $this->productExcludedFromCoupon($coupon, $item->buyable);
+    }
+
+    public function productExcludedFromCoupon(Coupon $coupon, BaseProduct $product): bool
+    {
+        return $coupon->excludedProducts->contains($product);
     }
 
     public function couponTimesUsed(Coupon $coupon): int

@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Vouchers\Http\Resources;
 
+use EscolaLms\Cart\Http\Resources\ProductResource;
 use EscolaLms\Vouchers\Models\Coupon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,8 +26,8 @@ class CouponResource extends JsonResource
             'min_cart_price' => $this->min_cart_price,
             'max_cart_price' =>  $this->max_cart_price,
             'amount' =>  $this->amount,
-            'included_products' => CouponProductResource::collection($this->includedProducts),
-            'excluded_products' => CouponProductResource::collection($this->excludedProducts),
+            'included_products' => ProductResource::collection($this->includedProducts),
+            'excluded_products' => ProductResource::collection($this->excludedProducts),
             'emails' => CouponEmailResource::collection($this->emails),
         ];
     }

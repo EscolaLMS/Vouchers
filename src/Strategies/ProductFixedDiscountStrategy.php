@@ -3,14 +3,23 @@
 namespace EscolaLms\Vouchers\Strategies;
 
 use EscolaLms\Vouchers\Models\Cart;
+use EscolaLms\Vouchers\Models\CartItem;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use EscolaLms\Vouchers\Strategies\Abstracts\DiscountStrategy;
 use EscolaLms\Vouchers\Strategies\Contracts\DiscountStrategyContract;
-use Treestoneit\ShoppingCart\Models\CartItem;
 
 class ProductFixedDiscountStrategy extends DiscountStrategy implements DiscountStrategyContract
 {
-    public function calculateDiscount(Cart $cart, ?int $taxRate = null): int
+    public function calculateAdditionalDiscount(Cart $cart): int
     {
-        return $cart->itemsIncludedInCoupon()->sum(fn (CartItem $item) => $this->coupon->amount * $item->quantity);
+        return 0;
+    }
+
+    public function calculateDiscountForItem(Cart $cart, CartItem $cartItem): int
+    {
+        if (!app(CouponServiceContract::class)->cartItemIncludedInCoupon($this->coupon, $cartItem)) {
+            return 0;
+        }
+        return $this->coupon->amount;
     }
 }
