@@ -2,10 +2,9 @@
 
 namespace EscolaLms\Vouchers\Tests\Api;
 
-use EscolaLms\Cart\Models\Course;
+use EscolaLms\Cart\Database\Seeders\CartPermissionSeeder;
+use EscolaLms\Cart\Models\Product;
 use EscolaLms\Core\Enums\UserRole;
-use EscolaLms\Courses\Events\CourseAccessStarted;
-use EscolaLms\Courses\Events\CourseAssigned;
 use EscolaLms\Payments\Models\Payment;
 use EscolaLms\Payments\Tests\Traits\CreatesPaymentMethods;
 use EscolaLms\Vouchers\Database\Seeders\VoucherPermissionsSeeder;
@@ -29,6 +28,7 @@ class UserVoucherTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(CartPermissionSeeder::class);
         $this->seed(VoucherPermissionsSeeder::class);
 
         $this->user = User::factory()->create();
@@ -39,20 +39,26 @@ class UserVoucherTest extends TestCase
     public function testApplyCartPercentVoucherAndPurchase()
     {
         Notification::fake();
-        Event::fake([CourseAccessStarted::class, CourseAssigned::class]);
 
-        $course = Course::factory()->create([
-            'base_price' => 1000
+        /** @var Product $product */
+        $product = Product::factory()->create([
+            'price' => 1000,
+            'tax_rate' => 0,
         ]);
-        $course2 = Course::factory()->create([
-            'base_price' => 500
+        $product2 = Product::factory()->create([
+            'price' => 500,
+            'tax_rate' => 0,
         ]);
 
         $user = $this->user;
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product->getKey(),
+        ]);
         $this->response->assertStatus(200);
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course2->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product2->getKey(),
+        ]);
         $this->response->assertStatus(200);
 
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
@@ -60,35 +66,24 @@ class UserVoucherTest extends TestCase
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('15.00', $cartDataApi['total']);
-        $this->assertEquals('0.00', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('1500', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1500', $cartDataApi['total_prediscount']);
         $this->assertNull($cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         $coupon = Coupon::factory()->cart_percent()->create();
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertOk();
-
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
         $this->response->assertOk();
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('13.50', $cartDataApi['total']);
-        $this->assertEquals('1.50', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('1350', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1350', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
         $this->response->assertOk();
@@ -100,18 +95,17 @@ class UserVoucherTest extends TestCase
                     [
                         'status' => 'PAID',
                         'total' => 1350,
-                        'subtotal' => 1500,
-                        // 'discount' => 150,
+                        'subtotal' => 1350,
                         'tax' => 0
                     ]
                 ]
             ])
-            ->assertJsonCount(3)
+            ->assertJsonCount(4)
             ->assertJsonCount(2, 'data.0.items');
+
         $user->refresh();
-        $course->refresh();
-        $this->assertTrue($course->alreadyBoughtBy($user));
-        $this->assertTrue($user->courses()->where('courses.id', $course->getKey())->exists());
+        $product->refresh();
+        $this->assertTrue($product->getOwnedByUserAttribute($user));
 
         $order_id = $this->response->json('data.0.id');
         $payment = Payment::where('payable_id', $order_id)->first();
@@ -121,20 +115,23 @@ class UserVoucherTest extends TestCase
     public function testApplyCartFixedVoucherAndPurchase()
     {
         Notification::fake();
-        Event::fake([CourseAccessStarted::class, CourseAssigned::class]);
 
-        $course = Course::factory()->create([
-            'base_price' => 1000
+        $product = Product::factory()->create([
+            'price' => 1000
         ]);
-        $course2 = Course::factory()->create([
-            'base_price' => 500
+        $product2 = Product::factory()->create([
+            'price' => 500
         ]);
 
         $user = $this->user;
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product->getKey(),
+        ]);
         $this->response->assertStatus(200);
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course2->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product2->getKey(),
+        ]);
         $this->response->assertStatus(200);
 
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
@@ -142,15 +139,10 @@ class UserVoucherTest extends TestCase
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('15.00', $cartDataApi['total']);
-        $this->assertEquals('0.00', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('1500', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1500', $cartDataApi['total_prediscount']);
         $this->assertNull($cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         $coupon = Coupon::factory()->cart_fixed()->create();
 
@@ -162,15 +154,10 @@ class UserVoucherTest extends TestCase
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('5.00', $cartDataApi['total']);
-        $this->assertEquals('10.00', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('500', $cartDataApi['total']);
+        $this->assertEquals('1000', $cartDataApi['additional_discount']);
+        $this->assertEquals('1500', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
         $this->response->assertOk();
@@ -182,18 +169,17 @@ class UserVoucherTest extends TestCase
                     [
                         'status' => 'PAID',
                         'total' => 500,
-                        'subtotal' => 1500,
-                        //'discount' => 1000,
+                        'subtotal' => 500,
                         'tax' => 0
                     ]
                 ]
             ])
-            ->assertJsonCount(3)
+            ->assertJsonCount(4)
             ->assertJsonCount(2, 'data.0.items');
+
         $user->refresh();
-        $course->refresh();
-        $this->assertTrue($course->alreadyBoughtBy($user));
-        $this->assertTrue($user->courses()->where('courses.id', $course->getKey())->exists());
+        $product->refresh();
+        $this->assertTrue($product->getOwnedByUserAttribute($user));
 
         $order_id = $this->response->json('data.0.id');
         $payment = Payment::where('payable_id', $order_id)->first();
@@ -203,20 +189,23 @@ class UserVoucherTest extends TestCase
     public function testApplyProductFixedVoucherAndPurchase()
     {
         Notification::fake();
-        Event::fake([CourseAccessStarted::class, CourseAssigned::class]);
 
-        $course = Course::factory()->create([
-            'base_price' => 1000
+        $product = Product::factory()->create([
+            'price' => 1000
         ]);
-        $course2 = Course::factory()->create([
-            'base_price' => 500
+        $product2 = Product::factory()->create([
+            'price' => 500
         ]);
 
         $user = $this->user;
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product->getKey(),
+        ]);
         $this->response->assertStatus(200);
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course2->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product2->getKey(),
+        ]);
         $this->response->assertStatus(200);
 
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
@@ -224,23 +213,18 @@ class UserVoucherTest extends TestCase
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('15.00', $cartDataApi['total']);
-        $this->assertEquals('0.00', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('1500', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1500', $cartDataApi['total_prediscount']);
         $this->assertNull($cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         /** @var Coupon $coupon */
         $coupon = Coupon::factory()->product_fixed()->create();
-        $coupon->products()->save(new CouponProduct([
-            'product_id' => $course->getKey(),
-            'product_type' => $course->getMorphClass(),
+        CouponProduct::create([
+            'coupon_id' => $coupon->getKey(),
+            'product_id' => $product->getKey(),
             'excluded' => false,
-        ]));
+        ]);
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertOk();
@@ -250,15 +234,10 @@ class UserVoucherTest extends TestCase
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('5.00', $cartDataApi['total']);
-        $this->assertEquals('10.00', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('500', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('500', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
         $this->response->assertOk();
@@ -270,18 +249,17 @@ class UserVoucherTest extends TestCase
                     [
                         'status' => 'PAID',
                         'total' => 500,
-                        'subtotal' => 1500,
-                        //'discount' => 1000,
+                        'subtotal' => 500,
                         'tax' => 0
                     ]
                 ]
             ])
-            ->assertJsonCount(3)
+            ->assertJsonCount(4)
             ->assertJsonCount(2, 'data.0.items');
+
         $user->refresh();
-        $course->refresh();
-        $this->assertTrue($course->alreadyBoughtBy($user));
-        $this->assertTrue($user->courses()->where('courses.id', $course->getKey())->exists());
+        $product->refresh();
+        $this->assertTrue($product->getOwnedByUserAttribute($user));
 
         $order_id = $this->response->json('data.0.id');
         $payment = Payment::where('payable_id', $order_id)->first();
@@ -291,20 +269,23 @@ class UserVoucherTest extends TestCase
     public function testApplyProductPercentVoucherAndPurchase()
     {
         Notification::fake();
-        Event::fake([CourseAccessStarted::class, CourseAssigned::class]);
 
-        $course = Course::factory()->create([
-            'base_price' => 1000
+        $product = Product::factory()->create([
+            'price' => 1000
         ]);
-        $course2 = Course::factory()->create([
-            'base_price' => 500
+        $product2 = Product::factory()->create([
+            'price' => 500
         ]);
 
         $user = $this->user;
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product->getKey(),
+        ]);
         $this->response->assertStatus(200);
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/course/' . $course2->getKey());
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product2->getKey(),
+        ]);
         $this->response->assertStatus(200);
 
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
@@ -312,23 +293,18 @@ class UserVoucherTest extends TestCase
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('15.00', $cartDataApi['total']);
-        $this->assertEquals('0.00', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('1500', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1500', $cartDataApi['total_prediscount']);
         $this->assertNull($cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         /** @var Coupon $coupon */
         $coupon = Coupon::factory()->product_percent()->create();
-        $coupon->products()->save(new CouponProduct([
-            'product_id' => $course->getKey(),
-            'product_type' => $course->getMorphClass(),
+        CouponProduct::create([
+            'coupon_id' => $coupon->getKey(),
+            'product_id' => $product->getKey(),
             'excluded' => false,
-        ]));
+        ]);
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertOk();
@@ -338,15 +314,10 @@ class UserVoucherTest extends TestCase
 
         $cartDataApi = $this->response->json()['data'];
 
-        $this->assertEquals('14.00', $cartDataApi['total']);
-        $this->assertEquals('1.00', $cartDataApi['discount']);
-        $this->assertEquals('15.00', $cartDataApi['total_without_discount']);
+        $this->assertEquals('1400', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1400', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
-
-        $shopService = ShopService::fromUserId($user);
-        $cartDataService = $shopService->getCartData();
-
-        $this->assertEquals($cartDataService, $cartDataApi);
 
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
         $this->response->assertOk();
@@ -358,18 +329,17 @@ class UserVoucherTest extends TestCase
                     [
                         'status' => 'PAID',
                         'total' => 1400,
-                        'subtotal' => 1500,
-                        //'discount' => 100,
+                        'subtotal' => 1400,
                         'tax' => 0
                     ]
                 ]
             ])
-            ->assertJsonCount(3)
+            ->assertJsonCount(4)
             ->assertJsonCount(2, 'data.0.items');
+
         $user->refresh();
-        $course->refresh();
-        $this->assertTrue($course->alreadyBoughtBy($user));
-        $this->assertTrue($user->courses()->where('courses.id', $course->getKey())->exists());
+        $product->refresh();
+        $this->assertTrue($product->getOwnedByUserAttribute($user));
 
         $order_id = $this->response->json('data.0.id');
         $payment = Payment::where('payable_id', $order_id)->first();

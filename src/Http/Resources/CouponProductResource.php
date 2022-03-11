@@ -18,7 +18,6 @@ class CouponProductResource extends JsonResource
             'id' => $this->id,
             'coupon_id' => $this->coupon_id,
             'product_id' => $this->product_id,
-            'product_type' => $this->product_id,
         ];
     }
 }

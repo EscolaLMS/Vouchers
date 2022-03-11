@@ -2,7 +2,7 @@
 
 namespace EscolaLms\Vouchers\Tests\Api;
 
-use EscolaLms\Cart\Models\Course;
+use EscolaLms\Cart\Models\Product;
 use EscolaLms\Core\Enums\UserRole;
 use EscolaLms\Vouchers\Database\Seeders\VoucherPermissionsSeeder;
 use EscolaLms\Vouchers\Http\Resources\CouponResource;
@@ -49,20 +49,14 @@ class AdminVoucherTest extends TestCase
         $coupon = Coupon::factory()->make();
         $data = $coupon->toArray();
 
-        $course = Course::factory()->create();
-        $course2 = Course::factory()->create();
+        $product = Product::factory()->create();
+        $product2 = Product::factory()->create();
 
         $data['excluded_products'] = [
-            [
-                'id' => $course->getKey(),
-                'class' => get_class($course),
-            ]
+            $product->getKey(),
         ];
         $data['included_products'] = [
-            [
-                'id' => $course2->getKey(),
-                'class' => get_class($course2),
-            ]
+            $product2->getKey(),
         ];
         $data['emails'] = [
             $this->user->email
@@ -79,8 +73,8 @@ class AdminVoucherTest extends TestCase
             'data' => json_decode(CouponResource::make($couponDb)->toJson(), true)
         ]);
 
-        $this->assertTrue($couponDb->excludedProducts->contains(fn (CouponProduct $product) => $product->product_id === $course->getKey() && $product->product_type === $course->getMorphClass()));
-        $this->assertTrue($couponDb->includedProducts->contains(fn (CouponProduct $product) => $product->product_id === $course2->getKey() && $product->product_type === $course2->getMorphClass()));
+        $this->assertTrue($couponDb->excludedProducts->contains(fn (Product $eProduct) => $eProduct->getKey() === $product->getKey()));
+        $this->assertTrue($couponDb->includedProducts->contains(fn (Product $iProduct) => $iProduct->getKey() === $product2->getKey()));
         $this->assertTrue($couponDb->emails->contains(fn (CouponEmail $email) => $email->email === $this->user->email));
     }
 

@@ -4,11 +4,13 @@
   "type": "package",
   "require": {
     "php": "^7.4|^8.0",
-    "escolalms/cart": "^0.1.17",
+    "escolalms/cart": "^0.3.6",
     "escolalms/core": "^1.2"
   },
   "require-dev": {
+    "barryvdh/laravel-ide-helper": "^2.12",
     "escolalms/settings": "^0.1.91",
+    "nunomaduro/collision": "^5.11",
     "orchestra/testbench": "^5.0|^6.0",
     "phpunit/phpunit": "^9.0"
   },

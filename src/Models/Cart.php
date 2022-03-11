@@ -2,39 +2,67 @@
 
 namespace EscolaLms\Vouchers\Models;
 
-use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
+use EscolaLms\Cart\Models\Cart as BaseCart;
+use EscolaLms\Vouchers\Services\CartManager;
+use EscolaLms\Vouchers\Services\Contracts\ShopServiceContract;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Collection;
-use Treestoneit\ShoppingCart\Models\Cart as BaseCart;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * EscolaLms\Vouchers\Models\Cart
+ *
+ * @property int $id
+ * @property int|null $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $coupon_id
+ * @property-read \EscolaLms\Vouchers\Models\Coupon|null $coupon
+ * @property-read int $additional_discount
+ * @property-read CartManager $cart_manager
+ * @property-read int $subtotal
+ * @property-read int $tax
+ * @property-read int $total
+ * @property-read int $total_pre_discount
+ * @property-read int $total_with_tax
+ * @property-read \Treestoneit\ShoppingCart\Models\CartItemCollection|\EscolaLms\Vouchers\Models\CartItem[] $items
+ * @property-read int|null $items_count
+ * @property-read \EscolaLms\Cart\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart whereCouponId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Cart whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Cart extends BaseCart
 {
+    protected $guarded = ['id', 'cartManager'];
+
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
     }
 
-    public function itemsIncludedInCoupon(): Collection
+    public function items(): HasMany
     {
-        if ($this->coupon) {
-            return app(CouponsServiceContract::class)->cartItemsIncludedInCoupon($this->coupon, $this);
-        }
-        return $this->items;
+        return $this->hasMany(CartItem::class);
     }
 
-    public function itemsExcludedFromCoupon(): Collection
+    public function getCartManagerAttribute(): CartManager
     {
-        if ($this->coupon) {
-            return app(CouponsServiceContract::class)->cartItemsExcludedFromCoupon($this->coupon, $this);
-        }
-        return Collection::empty();
+        return app(ShopServiceContract::class)->cartManagerForCart($this);
     }
 
-    public function itemsWithoutExcludedFromCoupon(): Collection
+    public function getAdditionalDiscountAttribute(): int
     {
-        if ($this->coupon) {
-            return app(CouponsServiceContract::class)->cartItemsWithoutExcludedFromCoupon($this->coupon, $this);
-        }
-        return $this->items;
+        return $this->cartManager->additionalDiscount();
+    }
+
+    public function getTotalPreDiscountAttribute(): int
+    {
+        return $this->cartManager->totalPreAdditionalDiscount();
     }
 }

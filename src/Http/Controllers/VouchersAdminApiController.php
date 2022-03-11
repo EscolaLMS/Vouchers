@@ -2,31 +2,32 @@
 
 namespace EscolaLms\Vouchers\Http\Controllers;
 
-use EscolaLms\Courses\Http\Controllers\AppBaseController;
+use EscolaLms\Core\Dtos\OrderDto;
+use EscolaLms\Core\Http\Controllers\EscolaLmsBaseController;
 use EscolaLms\Vouchers\Http\Requests\CreateCouponRequest;
 use EscolaLms\Vouchers\Http\Requests\DeleteCouponRequest;
 use EscolaLms\Vouchers\Http\Requests\ListCouponsRequest;
 use EscolaLms\Vouchers\Http\Requests\ReadCouponRequest;
 use EscolaLms\Vouchers\Http\Requests\UpdateCouponRequest;
 use EscolaLms\Vouchers\Http\Resources\CouponResource;
-use EscolaLms\Vouchers\Repositories\Contracts\CouponsRepositoryContract;
-use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use Illuminate\Http\JsonResponse;
 
-class VouchersAdminApiController extends AppBaseController
+class VouchersAdminApiController extends EscolaLmsBaseController
 {
-    private CouponsRepositoryContract $couponsRepository;
-    private CouponsServiceContract $couponsService;
+    private CouponServiceContract $couponsService;
 
-    public function __construct(CouponsRepositoryContract $couponsRepository, CouponsServiceContract $couponsService)
+    public function __construct(CouponServiceContract $couponsService)
     {
-        $this->couponsRepository = $couponsRepository;
         $this->couponsService = $couponsService;
     }
 
     public function index(ListCouponsRequest $request): JsonResponse
     {
-        return $this->sendResponseForResource(CouponResource::collection($this->couponsRepository->allQuery()->paginate()));
+        $orderDto = OrderDto::instantiateFromRequest($request);
+        $searchCouponsDto = $request->toDto();
+        $paginatedResults = $this->couponsService->searchAndPaginateCoupons($searchCouponsDto, $orderDto);
+        return $this->sendResponseForResource(CouponResource::collection($paginatedResults, __('Coupons search results')));
     }
 
     public function create(CreateCouponRequest $request): JsonResponse

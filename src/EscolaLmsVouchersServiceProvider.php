@@ -2,15 +2,14 @@
 
 namespace EscolaLms\Vouchers;
 
-use EscolaLms\Cart\Services\Contracts\ShopServiceContract;
-use EscolaLms\Cart\Services\ShopService as CartShopService;
-use EscolaLms\Vouchers\Models\Cart;
+use EscolaLms\Cart\Services\Contracts\OrderServiceContract as CartOrderServiceContract;
+use EscolaLms\Cart\Services\Contracts\ShopServiceContract as CartShopServiceContract;
 use EscolaLms\Vouchers\Providers\AuthServiceProvider;
-use EscolaLms\Vouchers\Repositories\Contracts\CouponsRepositoryContract;
-use EscolaLms\Vouchers\Repositories\CouponsRepository;
-use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
-use EscolaLms\Vouchers\Services\Contracts\ShopWithCouponsServiceContract;
-use EscolaLms\Vouchers\Services\CouponsService;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
+use EscolaLms\Vouchers\Services\Contracts\OrderServiceContract;
+use EscolaLms\Vouchers\Services\Contracts\ShopServiceContract;
+use EscolaLms\Vouchers\Services\CouponService;
+use EscolaLms\Vouchers\Services\OrderService;
 use EscolaLms\Vouchers\Services\ShopService;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,27 +21,20 @@ class EscolaLmsVouchersServiceProvider extends ServiceProvider
     const CONFIG_KEY = 'escolalms_vouchers';
 
     public $singletons = [
-        CouponsServiceContract::class => CouponsService::class,
-        CouponsRepositoryContract::class => CouponsRepository::class,
-    ];
-
-    public $bindings = [
-        ShopWithCouponsServiceContract::class => ShopService::class,
+        CouponServiceContract::class => CouponService::class,
+        OrderServiceContract::class => OrderService::class,
+        ShopServiceContract::class => ShopService::class,
     ];
 
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/config.php', self::CONFIG_KEY);
 
-        $this->app->extend(ShopServiceContract::class, function ($service, $app) {
-            /** @var CartShopService $service */
-            $cart = $service->getModel();
-            if ($cart->exists) {
-                $cart = Cart::find($cart->getKey());
-            } else {
-                $cart = new Cart($cart->getAttributes());
-            }
-            return new ShopService($cart);
+        $this->app->extend(CartOrderServiceContract::class, function ($service, $app) {
+            return app(OrderServiceContract::class);
+        });
+        $this->app->extend(CartShopServiceContract::class, function ($service, $app) {
+            return app(ShopServiceContract::class);
         });
 
         $this->app->register(AuthServiceProvider::class);

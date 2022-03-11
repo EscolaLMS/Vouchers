@@ -3,16 +3,23 @@
 namespace EscolaLms\Vouchers\Strategies;
 
 use EscolaLms\Vouchers\Models\Cart;
-use EscolaLms\Vouchers\Services\ShopService;
+use EscolaLms\Vouchers\Models\CartItem;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use EscolaLms\Vouchers\Strategies\Abstracts\DiscountStrategy;
 use EscolaLms\Vouchers\Strategies\Contracts\DiscountStrategyContract;
-use Treestoneit\ShoppingCart\Models\CartItem;
 
 class ProductPercentDiscountStrategy extends DiscountStrategy implements DiscountStrategyContract
 {
-    public function calculateDiscount(Cart $cart, ?int $taxRate = null): int
+    public function calculateAdditionalDiscount(Cart $cart): int
     {
-        $shopService = new ShopService($cart);
-        return $cart->itemsIncludedInCoupon()->sum(fn (CartItem $item) => $this->coupon->amount * ($item->subtotal + $shopService->taxForItem($item, $taxRate)) / 100);
+        return 0;
+    }
+
+    public function calculateDiscountForItem(Cart $cart, CartItem $cartItem): int
+    {
+        if (!app(CouponServiceContract::class)->cartItemIncludedInCoupon($this->coupon, $cartItem)) {
+            return 0;
+        }
+        return round($this->coupon->amount * $cartItem->buyable->getBuyablePrice() / 100, 0);
     }
 }

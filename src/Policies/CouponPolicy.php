@@ -5,18 +5,18 @@ namespace EscolaLms\Vouchers\Policies;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Vouchers\Enums\VoucherPermissionsEnum;
 use EscolaLms\Vouchers\Models\Coupon;
-use EscolaLms\Vouchers\Services\Contracts\CouponsServiceContract;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class CouponPolicy
 {
     use HandlesAuthorization;
 
-    private CouponsServiceContract $couponsService;
+    protected CouponServiceContract $couponService;
 
-    public function __construct(CouponsServiceContract $couponsService)
+    public function __construct(CouponServiceContract $couponService)
     {
-        $this->couponsService = $couponsService;
+        $this->couponService = $couponService;
     }
 
     public function viewAny(User $user)
@@ -46,6 +46,6 @@ class CouponPolicy
 
     public function apply(User $user, Coupon $coupon)
     {
-        return $user->can(VoucherPermissionsEnum::COUPON_USE) && $this->couponsService->couponIsActive($coupon);
+        return $user->can(VoucherPermissionsEnum::COUPON_USE) && $this->couponService->couponIsActive($coupon);
     }
 }
