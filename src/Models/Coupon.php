@@ -33,7 +33,7 @@ use NumberFormatter;
  *          property="code",
  *          description="code",
  *          type="string"
- *      ), 
+ *      ),
  *      @OA\Property(
  *          property="type",
  *          description="type",
@@ -79,6 +79,21 @@ use NumberFormatter;
  *          description="array",
  *          @OA\Items(type="string")
  *      ),
+ *      @OA\Property(
+ *          property="included_products",
+ *          description="array",
+ *          @OA\Items(type="integer")
+ *      ),
+ *      @OA\Property(
+ *          property="excluded_products",
+ *          description="array",
+ *          @OA\Items(type="integer")
+ *      ),
+ *      @OA\Property(
+ *          property="categories",
+ *          description="array",
+ *          @OA\Items(type="integer")
+ *      ),
  * )
  * 
  * @property int $id
@@ -97,11 +112,17 @@ use NumberFormatter;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Cart[] $carts
  * @property-read int|null $carts_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Category[] $categories
+ * @property-read int|null $categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\CouponEmail[] $emails
  * @property-read int|null $emails_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Category[] $excludedCategories
+ * @property-read int|null $excluded_categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Product[] $excludedProducts
  * @property-read int|null $excluded_products_count
  * @property-read string $value_string
+ * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Category[] $includedCategories
+ * @property-read int|null $included_categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Product[] $includedProducts
  * @property-read int|null $included_products_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Order[] $orders
@@ -173,6 +194,21 @@ class Coupon extends Model
     public function excludedProducts(): BelongsToMany
     {
         return $this->products()->wherePivot('excluded', true);
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'coupons_categories', 'coupon_id', 'category_id')->using(CouponCategory::class);
+    }
+
+    public function includedCategories(): BelongsToMany
+    {
+        return $this->categories()->wherePivot('excluded', false);
+    }
+
+    public function excludedCategories(): BelongsToMany
+    {
+        return $this->categories()->wherePivot('excluded', true);
     }
 
     public function carts(): HasMany

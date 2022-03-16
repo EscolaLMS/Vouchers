@@ -30,11 +30,15 @@ class UpdateCouponRequest extends FormRequest
             'max_cart_price' => ['integer', 'nullable'],
             'amount' => ['sometimes', 'required', 'integer'],
             'included_products' => ['sometimes', 'array'],
-            'included_products.*' => ['integer'],
+            'included_products.*' => ['integer', Rule::exists(Product::class, 'id')],
             'excluded_products' => ['sometimes', 'array'],
-            'excluded_products.*' => ['integer'],
+            'excluded_products.*' => ['integer', Rule::exists(Product::class, 'id')],
             'emails' => ['array'],
             'emails.*' => ['sometimes', 'string'],
+            'included_categories' => ['sometimes', 'array'],
+            'included_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
+            'excluded_categories' => ['sometimes', 'array'],
+            'excluded_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
         ];
     }
 

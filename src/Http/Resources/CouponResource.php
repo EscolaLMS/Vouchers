@@ -3,6 +3,7 @@
 namespace EscolaLms\Vouchers\Http\Resources;
 
 use EscolaLms\Cart\Http\Resources\ProductResource;
+use EscolaLms\Categories\Http\Resources\CategoryResource;
 use EscolaLms\Vouchers\Models\Coupon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -29,6 +30,8 @@ class CouponResource extends JsonResource
             'included_products' => ProductResource::collection($this->includedProducts),
             'excluded_products' => ProductResource::collection($this->excludedProducts),
             'emails' => CouponEmailResource::collection($this->emails),
+            'included_categories' => CategoryResource::collection($this->includedCategories),
+            'excluded_categories' => CategoryResource::collection($this->excludedCategories),
         ];
     }
 }
