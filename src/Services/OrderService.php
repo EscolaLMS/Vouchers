@@ -20,17 +20,18 @@ class OrderService extends BaseOrderService implements OrderServiceContract
         return Order::findOrFail($id);
     }
 
-    public function createOrderFromCart(BaseCart $cart, ?ClientDetailsDto $clientDetailsDto = null): BaseOrder
+    public function createOrderFromCart(BaseCart $cart, ?ClientDetailsDto $clientDetailsDto = null): Order
     {
         return $this->createOrderFromCartManager(new CartManager($cart), $clientDetailsDto);
     }
 
-    public function createOrderFromCartManager(BaseCartManager $cartManager, ?ClientDetailsDto $clientDetailsDto = null): BaseOrder
+    public function createOrderFromCartManager(BaseCartManager $cartManager, ?ClientDetailsDto $clientDetailsDto = null): Order
     {
         if (!$cartManager instanceof CartManager) {
             $cartManager = new CartManager($cartManager->getModel());
         }
         $order = parent::createOrderFromCartManager($cartManager, $clientDetailsDto);
+        $order = $order instanceof Order ? $order : Order::find($order->getKey());
         $order->coupon_id = optional($cartManager->getCoupon())->getKey();
         $order->discount = $cartManager->additionalDiscount();
         $order->save();
