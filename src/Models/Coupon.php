@@ -76,22 +76,22 @@ use NumberFormatter;
  *      ),
  *      @OA\Property(
  *          property="emails",
- *          description="array",
+ *          type="array",
  *          @OA\Items(type="string")
  *      ),
  *      @OA\Property(
  *          property="included_products",
- *          description="array",
+ *          type="array",
  *          @OA\Items(type="integer")
  *      ),
  *      @OA\Property(
  *          property="excluded_products",
- *          description="array",
+ *          type="array",
  *          @OA\Items(type="integer")
  *      ),
  *      @OA\Property(
  *          property="categories",
- *          description="array",
+ *          type="array",
  *          @OA\Items(type="integer")
  *      ),
  * )
