@@ -3,7 +3,9 @@
 namespace EscolaLms\Vouchers\Http\Requests;
 
 use EscolaLms\Vouchers\Enums\CouponTypeEnum;
+use EscolaLms\Vouchers\Models\Category;
 use EscolaLms\Vouchers\Models\Coupon;
+use EscolaLms\Vouchers\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -30,11 +32,15 @@ class CreateCouponRequest extends FormRequest
             'max_cart_price' => ['integer', 'nullable'],
             'amount' => ['required', 'integer'],
             'included_products' => ['array'],
-            'included_products.*' => ['integer'],
+            'included_products.*' => ['integer', Rule::exists(Product::class, 'id')],
             'excluded_products' => ['array'],
-            'excluded_products.*' => ['integer'],
+            'excluded_products.*' => ['integer', Rule::exists(Product::class, 'id')],
             'emails' => ['array'],
             'emails.*' => ['sometimes', 'string'],
+            'included_categories' => ['array'],
+            'included_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
+            'excluded_categories' => ['array'],
+            'excluded_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
         ];
     }
 }

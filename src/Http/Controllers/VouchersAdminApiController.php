@@ -4,6 +4,7 @@ namespace EscolaLms\Vouchers\Http\Controllers;
 
 use EscolaLms\Core\Dtos\OrderDto;
 use EscolaLms\Core\Http\Controllers\EscolaLmsBaseController;
+use EscolaLms\Vouchers\Http\Controllers\Swagger\VouchersAdminApiControllerSwagger;
 use EscolaLms\Vouchers\Http\Requests\CreateCouponRequest;
 use EscolaLms\Vouchers\Http\Requests\DeleteCouponRequest;
 use EscolaLms\Vouchers\Http\Requests\ListCouponsRequest;
@@ -13,7 +14,7 @@ use EscolaLms\Vouchers\Http\Resources\CouponResource;
 use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use Illuminate\Http\JsonResponse;
 
-class VouchersAdminApiController extends EscolaLmsBaseController
+class VouchersAdminApiController extends EscolaLmsBaseController implements VouchersAdminApiControllerSwagger
 {
     private CouponServiceContract $couponsService;
 

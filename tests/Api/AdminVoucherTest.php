@@ -6,10 +6,13 @@ use EscolaLms\Cart\Models\Product;
 use EscolaLms\Core\Enums\UserRole;
 use EscolaLms\Vouchers\Database\Seeders\VoucherPermissionsSeeder;
 use EscolaLms\Vouchers\Http\Resources\CouponResource;
+use EscolaLms\Vouchers\Models\CartItem;
+use EscolaLms\Vouchers\Models\Category;
 use EscolaLms\Vouchers\Models\Coupon;
 use EscolaLms\Vouchers\Models\CouponEmail;
 use EscolaLms\Vouchers\Models\CouponProduct;
 use EscolaLms\Vouchers\Models\User;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use EscolaLms\Vouchers\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -76,6 +79,74 @@ class AdminVoucherTest extends TestCase
         $this->assertTrue($couponDb->excludedProducts->contains(fn (Product $eProduct) => $eProduct->getKey() === $product->getKey()));
         $this->assertTrue($couponDb->includedProducts->contains(fn (Product $iProduct) => $iProduct->getKey() === $product2->getKey()));
         $this->assertTrue($couponDb->emails->contains(fn (CouponEmail $email) => $email->email === $this->user->email));
+    }
+
+    public function testCreateCouponWithProductsAndCategories()
+    {
+        $coupon = Coupon::factory()->make();
+        $data = $coupon->toArray();
+
+        $category = Category::factory()->create();
+        $category2 = Category::factory()->create();
+
+        $product = Product::factory()->create();
+        $product2 = Product::factory()->create();
+        $product3 = Product::factory()->create();
+        $product4 = Product::factory()->create();
+
+        $product3->categories()->sync([$category->getKey()]);
+        $product4->categories()->sync([$category2->getKey()]);
+
+        $data['included_products'] = [
+            $product->getKey(),
+        ];
+        $data['excluded_products'] = [
+            $product2->getKey(),
+        ];
+        $data['included_categories'] = [
+            $category->getKey(),
+        ];
+        $data['excluded_categories'] = [
+            $category2->getKey()
+        ];
+
+        $this->response = $this->actingAs($this->user, 'api')->json('POST', '/api/admin/vouchers/', $data);
+        $this->response->assertCreated();
+
+        $id = $this->response->json('data.id');
+        /** @var Coupon $couponDb */
+        $couponDb = Coupon::find($id);
+
+        $this->response->assertJsonFragment([
+            'data' => json_decode(CouponResource::make($couponDb)->toJson(), true)
+        ]);
+
+        $this->assertTrue($couponDb->includedProducts->contains(fn (Product $iProduct) => $iProduct->getKey() === $product->getKey()));
+        $this->assertTrue($couponDb->excludedProducts->contains(fn (Product $eProduct) => $eProduct->getKey() === $product2->getKey()));
+        $this->assertTrue($couponDb->includedCategories->contains(fn (Category $iCategory) => $iCategory->getKey() === $category->getKey()));
+        $this->assertTrue($couponDb->excludedCategories->contains(fn (Category $eCategory) => $eCategory->getkey() === $category2->getKey()));
+
+        $cartItem = new CartItem([
+            'buyable_type' => $product->getMorphClass(),
+            'buyable_id' => $product->getKey()
+        ]);
+        $cartItem2 = new CartItem([
+            'buyable_type' => $product2->getMorphClass(),
+            'buyable_id' => $product2->getKey()
+        ]);
+        $cartItem3 = new CartItem([
+            'buyable_type' => $product3->getMorphClass(),
+            'buyable_id' => $product3->getKey()
+        ]);
+        $cartItem4 = new CartItem([
+            'buyable_type' => $product4->getMorphClass(),
+            'buyable_id' => $product4->getKey()
+        ]);
+
+        $this->assertTrue(app(CouponServiceContract::class)->cartItemIsIncludedInCoupon($couponDb, $cartItem));
+        $this->assertTrue(app(CouponServiceContract::class)->cartItemIsIncludedInCoupon($couponDb, $cartItem3));
+        $this->assertTrue(app(CouponServiceContract::class)->cartItemIsExcludedFromCoupon($couponDb, $cartItem2));
+        $this->assertTrue(app(CouponServiceContract::class)->cartItemIsExcludedFromCoupon($couponDb, $cartItem4));
     }
 
     public function testUpdateCoupon()

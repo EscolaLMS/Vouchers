@@ -17,7 +17,7 @@ class CartPercentDiscountStrategy extends DiscountStrategy implements DiscountSt
 
     public function calculateDiscountForItem(Cart $cart, CartItem $cartItem): int
     {
-        if (app(CouponServiceContract::class)->cartItemExcludedFromCoupon($this->coupon, $cartItem)) {
+        if (app(CouponServiceContract::class)->cartItemIsExcludedFromCoupon($this->coupon, $cartItem)) {
             return 0;
         }
         return round($this->coupon->amount * $cartItem->buyable->getBuyablePrice() / 100, 0);

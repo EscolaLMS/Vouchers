@@ -23,7 +23,7 @@ class VouchersApiController extends EscolaLmsBaseController implements VouchersA
     {
         try {
             $cart = $this->shopService->cartForUser($request->user());
-            $cartManager = $cart->getCartManager();
+            $cartManager = $cart->cart_manager;
             $cartManager->setCoupon($request->getCoupon());
         } catch (CouponInactiveException $ex) {
             return $this->sendError($ex->getMessage(), 403);
