@@ -98,14 +98,14 @@ class CouponService implements CouponServiceContract
             CouponCategory::create([
                 'coupon_id' => $coupon->getKey(),
                 'category_id' => $category,
-                'excluded' => false
+                'excluded' => false,
             ]);
         }
         foreach ($data['excluded_categories'] ?? [] as $category) {
             CouponCategory::create([
                 'coupon_id' => $coupon->getKey(),
                 'category_id' => $category,
-                'excluded' => true
+                'excluded' => true,
             ]);
         }
 
