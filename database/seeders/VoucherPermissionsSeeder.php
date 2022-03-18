@@ -17,7 +17,7 @@ class VoucherPermissionsSeeder extends Seeder
         $tutor = Role::findOrCreate(UserRole::TUTOR, 'api');
         $student = Role::findOrCreate(UserRole::STUDENT, 'api');
 
-        Permission::findOrCreate(VoucherPermissionsEnum::COUPONS_LIST, 'api');
+        Permission::findOrCreate(VoucherPermissionsEnum::COUPON_LIST, 'api');
         Permission::findOrCreate(VoucherPermissionsEnum::COUPON_CREATE, 'api');
         Permission::findOrCreate(VoucherPermissionsEnum::COUPON_READ, 'api');
         Permission::findOrCreate(VoucherPermissionsEnum::COUPON_UPDATE, 'api');
@@ -25,7 +25,7 @@ class VoucherPermissionsSeeder extends Seeder
         Permission::findOrCreate(VoucherPermissionsEnum::COUPON_USE, 'api');
 
         $admin->givePermissionTo([
-            VoucherPermissionsEnum::COUPONS_LIST,
+            VoucherPermissionsEnum::COUPON_LIST,
             VoucherPermissionsEnum::COUPON_CREATE,
             VoucherPermissionsEnum::COUPON_READ,
             VoucherPermissionsEnum::COUPON_UPDATE,

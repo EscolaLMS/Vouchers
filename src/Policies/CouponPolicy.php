@@ -21,7 +21,7 @@ class CouponPolicy
 
     public function viewAny(User $user)
     {
-        return $user->can(VoucherPermissionsEnum::COUPONS_LIST);
+        return $user->can(VoucherPermissionsEnum::COUPON_LIST);
     }
 
     public function view(User $user, Coupon $course)

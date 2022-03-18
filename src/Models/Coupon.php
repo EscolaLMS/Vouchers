@@ -90,7 +90,12 @@ use NumberFormatter;
  *          @OA\Items(type="integer")
  *      ),
  *      @OA\Property(
- *          property="categories",
+ *          property="included_categories",
+ *          type="array",
+ *          @OA\Items(type="integer")
+ *      ),
+ *      @OA\Property(
+ *          property="excluded_categories",
  *          type="array",
  *          @OA\Items(type="integer")
  *      ),
