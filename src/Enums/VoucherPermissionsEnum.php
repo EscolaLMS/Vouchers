@@ -6,7 +6,7 @@ use EscolaLms\Core\Enums\BasicEnum;
 
 class VoucherPermissionsEnum extends BasicEnum
 {
-    const COUPONS_LIST  = 'coupons_list';
+    const COUPON_LIST   = 'coupon_list';
     const COUPON_CREATE = 'coupon_create';
     const COUPON_READ   = 'coupon_read';
     const COUPON_UPDATE = 'coupon_update';
