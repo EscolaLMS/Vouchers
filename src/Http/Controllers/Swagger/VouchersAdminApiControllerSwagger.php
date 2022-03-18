@@ -17,6 +17,9 @@ interface VouchersAdminApiControllerSwagger
      *      summary="Get a listing of the Vouchers.",
      *      tags={"Admin Vouchers"},
      *      description="Get all Vouchers",
+     *      security={
+     *          {"passport": {}},
+     *      },
      *      @OA\Parameter(
      *          name="page",
      *          description="Pagination Page Number",
