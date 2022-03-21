@@ -26,7 +26,7 @@ class VouchersApiController extends EscolaLmsBaseController implements VouchersA
             $cartManager = $cart->cart_manager;
             $cartManager->setCoupon($request->getCoupon());
         } catch (CouponInactiveException $ex) {
-            return $this->sendError($ex->getMessage(), 403);
+            return $this->sendError($ex->getMessage(), 400);
         } catch (CouponNotApplicableException $ex) {
             return $this->sendError($ex->getMessage(), 400);
         }

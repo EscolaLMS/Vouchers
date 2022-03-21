@@ -46,6 +46,6 @@ class CouponPolicy
 
     public function apply(User $user, Coupon $coupon)
     {
-        return $user->can(VoucherPermissionsEnum::COUPON_USE) && $this->couponService->couponIsActive($coupon);
+        return $user->can(VoucherPermissionsEnum::COUPON_USE);
     }
 }
