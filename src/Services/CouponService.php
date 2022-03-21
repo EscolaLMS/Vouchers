@@ -9,8 +9,8 @@ use EscolaLms\Vouchers\Dtos\CouponSearchDto;
 use EscolaLms\Vouchers\Models\Cart;
 use EscolaLms\Vouchers\Models\Coupon;
 use EscolaLms\Vouchers\Models\CouponCategory;
-use EscolaLms\Vouchers\Models\CouponEmail;
 use EscolaLms\Vouchers\Models\CouponProduct;
+use EscolaLms\Vouchers\Models\CouponUser;
 use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use EscolaLms\Vouchers\Strategies\Contracts\DiscountStrategyContract;
 use EscolaLms\Vouchers\Strategies\NoneDiscountStrategy;
@@ -109,10 +109,10 @@ class CouponService implements CouponServiceContract
             ]);
         }
 
-        foreach ($data['emails'] ?? []  as $email) {
-            CouponEmail::create([
+        foreach ($data['users'] ?? []  as $user) {
+            CouponUser::create([
                 'coupon_id' => $coupon->getKey(),
-                'email' => $email,
+                'user_id' => $user,
             ]);
         }
 
@@ -146,19 +146,19 @@ class CouponService implements CouponServiceContract
             ->mapWithKeys(fn ($id) => [$id => ['excluded' => true]]);
         $coupon->categories()->sync($syncIncludedCategories->merge($syncExcludedCategories));
 
-        if (isset($data['emails'])) {
-            CouponEmail::where('coupon_id', $coupon->getKey())
-                ->whereNotIn('email', $data['emails'])
+        if (isset($data['users'])) {
+            CouponUser::where('coupon_id', $coupon->getKey())
+                ->whereNotIn('user_id', $data['users'])
                 ->delete();
         }
-        foreach ($data['emails'] ?? [] as $email) {
-            CouponEmail::query()->firstOrCreate([
+        foreach ($data['users'] ?? [] as $user) {
+            CouponUser::query()->firstOrCreate([
                 'coupon_id' => $coupon->getKey(),
-                'email' => $email,
+                'user_id' => $user,
             ]);
         }
 
-        unset($data['emails']);
+        unset($data['users']);
         unset($data['included_products']);
         unset($data['excluded_products']);
         unset($data['included_categories']);
@@ -196,7 +196,7 @@ class CouponService implements CouponServiceContract
             && $this->couponInPriceRange($coupon, $cartManager->totalPreAdditionalDiscount())
             && $this->cartContainsItemsIncludedInCoupon($coupon, $cart)
             && $this->cartContainsItemsNotExcludedFromCoupon($coupon, $cart)
-            && $this->userEmailIncludedInCoupon($coupon);
+            && $this->userIncludedInCoupon($coupon);
     }
 
     public function couponIsActive(Coupon $coupon): bool
@@ -225,7 +225,7 @@ class CouponService implements CouponServiceContract
 
     public function cartItemIsIncludedInCoupon(Coupon $coupon, CartItem $item): bool
     {
-        return $item->buyable instanceof Product && ($this->productIsIncludedInCoupon($coupon, $item->buyable) || $this->productCategoriesAreIncludedInCoupon($coupon, $item->buyable));
+        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($item->buyable) && ($this->productIsIncludedInCoupon($coupon, $item->buyable) || $this->productCategoriesAreIncludedInCoupon($coupon, $item->buyable));
     }
 
     public function productIsIncludedInCoupon(Coupon $coupon, Product $product): bool
@@ -250,7 +250,12 @@ class CouponService implements CouponServiceContract
 
     public function cartItemIsExcludedFromCoupon(Coupon $coupon, CartItem $item): bool
     {
-        return $item->buyable instanceof Product && ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable));
+        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($item->buyable) && ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable));
+    }
+
+    public function productIsNotOnPromotion(Product $product): bool
+    {
+        return is_null($product->price_old) || $product->price_old === $product->price;
     }
 
     public function productIsExcludedFromCoupon(Coupon $coupon, Product $product): bool
@@ -277,12 +282,12 @@ class CouponService implements CouponServiceContract
         return $coupon->orders()->where('user_id', $user->getKey())->count();
     }
 
-    public function userEmailIncludedInCoupon(Coupon $coupon, ?User $user = null): bool
+    public function userIncludedInCoupon(Coupon $coupon, ?User $user = null): bool
     {
         if (empty($user)) {
             /** @var User $user */
             $user = Auth::user();
         }
-        return $coupon->emails->count() === 0 || $coupon->emails()->where('email', $user->email)->exists();
+        return $coupon->users->count() === 0 || CouponUser::where('user_id', $user->getKey())->where('coupon_id', $coupon->getKey())->exists();
     }
 }

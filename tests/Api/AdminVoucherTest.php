@@ -9,8 +9,7 @@ use EscolaLms\Vouchers\Http\Resources\CouponResource;
 use EscolaLms\Vouchers\Models\CartItem;
 use EscolaLms\Vouchers\Models\Category;
 use EscolaLms\Vouchers\Models\Coupon;
-use EscolaLms\Vouchers\Models\CouponEmail;
-use EscolaLms\Vouchers\Models\CouponProduct;
+use EscolaLms\Vouchers\Models\CouponUser;
 use EscolaLms\Vouchers\Models\User;
 use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use EscolaLms\Vouchers\Tests\TestCase;
@@ -47,7 +46,7 @@ class AdminVoucherTest extends TestCase
         ]);
     }
 
-    public function testCreateCouponWithProductsAndEmails()
+    public function testCreateCouponWithProductsAndUsers()
     {
         $coupon = Coupon::factory()->make();
         $data = $coupon->toArray();
@@ -61,8 +60,8 @@ class AdminVoucherTest extends TestCase
         $data['included_products'] = [
             $product2->getKey(),
         ];
-        $data['emails'] = [
-            $this->user->email
+        $data['users'] = [
+            $this->user->getKey(),
         ];
 
         $this->response = $this->actingAs($this->user, 'api')->json('POST', '/api/admin/vouchers/', $data);
@@ -78,7 +77,7 @@ class AdminVoucherTest extends TestCase
 
         $this->assertTrue($couponDb->excludedProducts->contains(fn (Product $eProduct) => $eProduct->getKey() === $product->getKey()));
         $this->assertTrue($couponDb->includedProducts->contains(fn (Product $iProduct) => $iProduct->getKey() === $product2->getKey()));
-        $this->assertTrue($couponDb->emails->contains(fn (CouponEmail $email) => $email->email === $this->user->email));
+        $this->assertTrue($couponDb->users->contains(fn (User $user) => $user->getKey() === $this->user->getKey()));
     }
 
     public function testCreateCouponWithProductsAndCategories()
