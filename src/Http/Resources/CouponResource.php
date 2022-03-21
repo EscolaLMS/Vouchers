@@ -2,7 +2,6 @@
 
 namespace EscolaLms\Vouchers\Http\Resources;
 
-use EscolaLms\Auth\Http\Resources\UserResource;
 use EscolaLms\Cart\Http\Resources\ProductResource;
 use EscolaLms\Categories\Http\Resources\CategoryResource;
 use EscolaLms\Core\Models\User;
@@ -22,6 +21,7 @@ class CouponResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
+            'type' => $this->type,
             'active_from' => $this->active_from,
             'active_to' =>  $this->active_to,
             'limit_usage' =>  $this->limit_usage,

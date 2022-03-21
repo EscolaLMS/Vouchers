@@ -3,7 +3,9 @@
 namespace EscolaLms\Vouchers\Http\Requests;
 
 use EscolaLms\Vouchers\Enums\CouponTypeEnum;
+use EscolaLms\Vouchers\Models\Category;
 use EscolaLms\Vouchers\Models\Coupon;
+use EscolaLms\Vouchers\Models\Product;
 use EscolaLms\Vouchers\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
