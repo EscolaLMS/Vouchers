@@ -14,6 +14,7 @@ use EscolaLms\Vouchers\Models\User;
 use EscolaLms\Vouchers\Services\ShopService;
 use EscolaLms\Vouchers\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 
@@ -344,5 +345,71 @@ class UserVoucherTest extends TestCase
         $order_id = $this->response->json('data.0.id');
         $payment = Payment::where('payable_id', $order_id)->first();
         $this->assertEquals(1400, $payment->amount);
+    }
+
+    public function testApplyInactiveCoupon()
+    {
+        Notification::fake();
+
+        $product = Product::factory()->create([
+            'price' => 1000
+        ]);
+
+        $user = $this->user;
+
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product->getKey(),
+        ]);
+        $this->response->assertStatus(200);
+
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+
+        /** @var Coupon $coupon */
+        $coupon = Coupon::factory()->product_percent()->create(['active_to' => Carbon::now()->subDay(),]);
+        CouponProduct::create([
+            'coupon_id' => $coupon->getKey(),
+            'product_id' => $product->getKey(),
+            'excluded' => false,
+        ]);
+
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
+        $this->response->assertStatus(400);
+        $this->response->assertJsonFragment([
+            'message' => __('Coupon :code is no longer active', ['code' => $coupon->code])
+        ]);
+    }
+
+    public function testApplyWrongCoupon()
+    {
+        Notification::fake();
+
+        $product = Product::factory()->create([
+            'price' => 1000
+        ]);
+
+        $user = $this->user;
+
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product->getKey(),
+        ]);
+        $this->response->assertStatus(200);
+
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+
+        /** @var Coupon $coupon */
+        $coupon = Coupon::factory()->product_percent()->create();
+        CouponProduct::create([
+            'coupon_id' => $coupon->getKey(),
+            'product_id' => $product->getKey(),
+            'excluded' => true,
+        ]);
+
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
+        $this->response->assertStatus(400);
+        $this->response->assertJsonFragment([
+            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+        ]);
     }
 }

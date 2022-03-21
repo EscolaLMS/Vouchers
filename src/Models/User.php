@@ -32,6 +32,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \EscolaLms\Vouchers\Models\Cart|null $cart
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Passport\Client[] $clients
  * @property-read int|null $clients_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Coupon[] $coupons
+ * @property-read int|null $coupons_count
  * @property-read string|null $avatar_url
  * @property-read bool $email_verified
  * @property-read string $name
@@ -90,6 +92,11 @@ class User extends CartUser
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'products_users');
+        return $this->belongsToMany(Product::class, 'products_users', 'user_id', 'product_id');
+    }
+
+    public function coupons(): BelongsToMany
+    {
+        return $this->belongsToMany(Coupon::class, 'coupon_user', 'user_id', 'coupon_id')->using(CouponUser::class);
     }
 }

@@ -6,6 +6,7 @@ use EscolaLms\Vouchers\Enums\CouponTypeEnum;
 use EscolaLms\Vouchers\Models\Category;
 use EscolaLms\Vouchers\Models\Coupon;
 use EscolaLms\Vouchers\Models\Product;
+use EscolaLms\Vouchers\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -24,8 +25,8 @@ class CreateCouponRequest extends FormRequest
             'code' => ['required', 'string'],
             'active' => ['boolean'],
             'type' => ['required', Rule::in(CouponTypeEnum::getValues())],
-            'active_from' => ['datetime', 'nullable'],
-            'active_to' => ['datetime', 'nullable'],
+            'active_from' => ['date', 'nullable'],
+            'active_to' => ['date', 'nullable'],
             'limit_usage' => ['integer', 'nullable'],
             'limit_per_user' => ['integer', 'nullable'],
             'min_cart_price' => ['integer', 'nullable'],
@@ -35,8 +36,8 @@ class CreateCouponRequest extends FormRequest
             'included_products.*' => ['integer', Rule::exists(Product::class, 'id')],
             'excluded_products' => ['array'],
             'excluded_products.*' => ['integer', Rule::exists(Product::class, 'id')],
-            'emails' => ['array'],
-            'emails.*' => ['sometimes', 'string'],
+            'users' => ['array'],
+            'users.*' => ['integer', Rule::exists(User::class, 'id')],
             'included_categories' => ['array'],
             'included_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
             'excluded_categories' => ['array'],

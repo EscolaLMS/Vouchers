@@ -75,9 +75,9 @@ use NumberFormatter;
  *          type="integer",
  *      ),
  *      @OA\Property(
- *          property="emails",
+ *          property="users",
  *          type="array",
- *          @OA\Items(type="string")
+ *          @OA\Items(type="integer")
  *      ),
  *      @OA\Property(
  *          property="included_products",
@@ -119,8 +119,6 @@ use NumberFormatter;
  * @property-read int|null $carts_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Category[] $categories
  * @property-read int|null $categories_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\CouponEmail[] $emails
- * @property-read int|null $emails_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Category[] $excludedCategories
  * @property-read int|null $excluded_categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Product[] $excludedProducts
@@ -134,6 +132,8 @@ use NumberFormatter;
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Product[] $products
  * @property-read int|null $products_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\User[] $users
+ * @property-read int|null $users_count
  * @method static \EscolaLms\Vouchers\Database\Factories\CouponFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon newQuery()
@@ -181,9 +181,9 @@ class Coupon extends Model
         }
     }
 
-    public function emails(): HasMany
+    public function users(): BelongsToMany
     {
-        return $this->hasMany(CouponEmail::class);
+        return $this->belongsToMany(User::class, 'coupon_user', 'coupon_id', 'user_id')->using(CouponUser::class);
     }
 
     public function products(): BelongsToMany
