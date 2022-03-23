@@ -70,6 +70,8 @@ class CouponService implements CouponServiceContract
         $coupon = new Coupon([
             'name' => $data['name'],
             'code' => $data['code'],
+            'type' => $data['type'],
+            'active' => $data['active'],
             'active_from' => $data['active_from'],
             'active_to' => $data['active_to'],
             'limit_usage' => $data['limit_usage'],
@@ -134,17 +136,23 @@ class CouponService implements CouponServiceContract
             $data['excluded_categories'] = $coupon->excludedCategories->pluck('id');
         }
 
-        $syncIncludedProducts = collect($data['included_products'])
-            ->mapWithKeys(fn ($id) => [$id => ['excluded' => false]]);
-        $syncExcludedProducts = collect($data['excluded_products'])
-            ->mapWithKeys(fn ($id) => [$id => ['excluded' => true]]);
-        $coupon->products()->sync($syncIncludedProducts->merge($syncExcludedProducts));
+        $products = [];
+        foreach ($data['included_products'] as $id) {
+            $products[$id] = ['excluded' => false];
+        }
+        foreach ($data['excluded_products'] as $id) {
+            $products[$id] = ['excluded' => true];
+        }
+        $coupon->products()->sync($products);
 
-        $syncIncludedCategories = collect($data['included_categories'])
-            ->mapWithKeys(fn ($id) => [$id => ['excluded' => false]]);
-        $syncExcludedCategories = collect($data['included_categories'])
-            ->mapWithKeys(fn ($id) => [$id => ['excluded' => true]]);
-        $coupon->categories()->sync($syncIncludedCategories->merge($syncExcludedCategories));
+        $categories = [];
+        foreach ($data['included_categories'] as $id) {
+            $categories[$id] = ['excluded' => false];
+        }
+        foreach ($data['excluded_categories'] as $id) {
+            $categories[$id] = ['excluded' => true];
+        }
+        $coupon->categories()->sync($categories);
 
         if (isset($data['users'])) {
             CouponUser::where('coupon_id', $coupon->getKey())
