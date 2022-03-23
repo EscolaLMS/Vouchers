@@ -150,21 +150,36 @@ class AdminVoucherTest extends TestCase
 
     public function testUpdateCoupon()
     {
+        $product = Product::factory()->create();
+        $product2 = Product::factory()->create();
+        $product3 = Product::factory()->create();
+        $product4 = Product::factory()->create();
+
+        /** @var Coupon $coupon */
         $coupon = Coupon::factory()->create([
             'name' => 'first',
         ]);
+        $coupon->products()->sync([$product->getKey() => ['excluded' => false], $product2->getKey() => ['excluded' => false]]);
+
+        $coupon->refresh();
+        $this->assertEquals([$product->getKey(), $product2->getKey()], $coupon->includedProducts->pluck('id')->toArray());
+
         $coupon2 = Coupon::factory()->make([
             'name' => 'second',
             'code' => 'SOMECODE'
         ]);
 
+        $data = $coupon2->toArray();
+        $data['included_products'] = [$product3->getKey(), $product4->getKey()];
+
         $url =  '/api/admin/vouchers/' . $coupon->getKey();
-        $this->response = $this->actingAs($this->user, 'api')->json('PATCH', $url, $coupon2->toArray());
+        $this->response = $this->actingAs($this->user, 'api')->json('PATCH', $url, $data);
         $this->response->assertOk();
 
         $coupon->refresh();
         $this->assertEquals('second', $coupon->name);
         $this->assertEquals('SOMECODE', $coupon->code);
+        $this->assertEquals([$product3->getKey(), $product4->getKey()], $coupon->includedProducts->pluck('id')->toArray());
     }
 
     public function testListCoupons()
