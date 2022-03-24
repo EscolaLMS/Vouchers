@@ -4,7 +4,7 @@
   "type": "package",
   "require": {
     "php": "^7.4|^8.0",
-    "escolalms/cart": "^0.3.6",
+    "escolalms/cart": "^0.4",
     "escolalms/core": "^1.2"
   },
   "require-dev": {
