@@ -5,23 +5,20 @@ namespace EscolaLms\Vouchers\Tests\Api;
 use EscolaLms\Cart\Database\Seeders\CartPermissionSeeder;
 use EscolaLms\Cart\Models\Product;
 use EscolaLms\Core\Enums\UserRole;
+use EscolaLms\Payments\Facades\PaymentGateway;
 use EscolaLms\Payments\Models\Payment;
-use EscolaLms\Payments\Tests\Traits\CreatesPaymentMethods;
 use EscolaLms\Vouchers\Database\Seeders\VoucherPermissionsSeeder;
 use EscolaLms\Vouchers\Models\Coupon;
 use EscolaLms\Vouchers\Models\CouponProduct;
 use EscolaLms\Vouchers\Models\User;
-use EscolaLms\Vouchers\Services\ShopService;
 use EscolaLms\Vouchers\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 
 class UserVoucherTest extends TestCase
 {
     use DatabaseTransactions;
-    use CreatesPaymentMethods;
 
     private $user;
 
@@ -39,6 +36,7 @@ class UserVoucherTest extends TestCase
 
     public function testApplyCartPercentVoucherAndPurchase()
     {
+        PaymentGateway::fake();
         Notification::fake();
 
         /** @var Product $product */
@@ -86,8 +84,8 @@ class UserVoucherTest extends TestCase
         $this->assertEquals('1350', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
-        $this->response->assertOk();
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay');
+        $this->response->assertCreated();
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/orders');
         $this->response->assertOk()
             ->assertJson([
@@ -115,6 +113,7 @@ class UserVoucherTest extends TestCase
 
     public function testApplyCartFixedVoucherAndPurchase()
     {
+        PaymentGateway::fake();
         Notification::fake();
 
         $product = Product::factory()->create([
@@ -160,8 +159,8 @@ class UserVoucherTest extends TestCase
         $this->assertEquals('1500', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
-        $this->response->assertOk();
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay');
+        $this->response->assertCreated();
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/orders');
         $this->response->assertOk()
             ->assertJson([
@@ -189,6 +188,7 @@ class UserVoucherTest extends TestCase
 
     public function testApplyProductFixedVoucherAndPurchase()
     {
+        PaymentGateway::fake();
         Notification::fake();
 
         $product = Product::factory()->create([
@@ -240,8 +240,8 @@ class UserVoucherTest extends TestCase
         $this->assertEquals('500', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
-        $this->response->assertOk();
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay');
+        $this->response->assertCreated();
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/orders');
         $this->response->assertOk()
             ->assertJson([
@@ -269,6 +269,7 @@ class UserVoucherTest extends TestCase
 
     public function testApplyProductPercentVoucherAndPurchase()
     {
+        PaymentGateway::fake();
         Notification::fake();
 
         $product = Product::factory()->create([
@@ -320,8 +321,8 @@ class UserVoucherTest extends TestCase
         $this->assertEquals('1400', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
 
-        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay', ['paymentMethodId' => $this->getPaymentMethodId()]);
-        $this->response->assertOk();
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/pay');
+        $this->response->assertCreated();
         $this->response = $this->actingAs($user, 'api')->json('GET', '/api/orders');
         $this->response->assertOk()
             ->assertJson([
