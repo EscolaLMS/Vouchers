@@ -332,6 +332,18 @@
                         "items": {
                             "type": "integer"
                         }
+                    },
+                    "active": {
+                        "type": "array",
+                        "items": {
+                            "type": "boolean"
+                        }
+                    },
+                    "exclude_promotions": {
+                        "type": "array",
+                        "items": {
+                            "type": "boolean"
+                        }
                     }
                 },
                 "type": "object"
