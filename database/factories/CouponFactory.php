@@ -26,6 +26,7 @@ class CouponFactory extends Factory
             'max_cart_price' => null,
             'amount' => 1000,
             'type' => CouponTypeEnum::PRODUCT_PERCENT,
+            'exclude_promotions' => true,
         ];
     }
 
