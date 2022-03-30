@@ -99,6 +99,16 @@ use NumberFormatter;
  *          type="array",
  *          @OA\Items(type="integer")
  *      ),
+ *      @OA\Property(
+ *          property="active",
+ *          type="array",
+ *          @OA\Items(type="boolean")
+ *      ),
+ *      @OA\Property(
+ *          property="exclude_promotions",
+ *          type="array",
+ *          @OA\Items(type="boolean")
+ *      ),
  * )
  * 
  * @property int $id
@@ -115,6 +125,7 @@ use NumberFormatter;
  * @property int $amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property bool $exclude_promotions
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Cart[] $carts
  * @property-read int|null $carts_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Category[] $categories
@@ -144,6 +155,7 @@ use NumberFormatter;
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon whereCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Coupon whereExcludePromotions($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon whereLimitPerUser($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Coupon whereLimitUsage($value)
@@ -164,6 +176,7 @@ class Coupon extends Model
         'active' => 'bool',
         'active_from' => 'datetime',
         'active_to' => 'datetime',
+        'exclude_promotions' => 'bool',
     ];
 
     public function getValueStringAttribute(): string

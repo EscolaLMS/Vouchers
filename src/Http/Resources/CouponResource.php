@@ -22,6 +22,7 @@ class CouponResource extends JsonResource
             'name' => $this->name,
             'code' => $this->code,
             'type' => $this->type,
+            'active' => $this->active,
             'active_from' => $this->active_from,
             'active_to' =>  $this->active_to,
             'limit_usage' =>  $this->limit_usage,
@@ -34,6 +35,7 @@ class CouponResource extends JsonResource
             'users' => $this->users->map(fn (User $user) => $user->getKey())->toArray(),
             'included_categories' => CategoryResource::collection($this->includedCategories),
             'excluded_categories' => CategoryResource::collection($this->excludedCategories),
+            'exclude_promotions' => $this->exclude_promotions,
         ];
     }
 }

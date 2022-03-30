@@ -79,6 +79,7 @@ class CouponService implements CouponServiceContract
             'min_cart_price' => $data['min_cart_price'],
             'max_cart_price' => $data['max_cart_price'],
             'amount' => $data['amount'],
+            'exclude_promotions' => $data['exclude_promotions'],
         ]);
         $coupon->save();
 
@@ -233,7 +234,7 @@ class CouponService implements CouponServiceContract
 
     public function cartItemIsIncludedInCoupon(Coupon $coupon, CartItem $item): bool
     {
-        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($item->buyable) && ($this->productIsIncludedInCoupon($coupon, $item->buyable) || $this->productCategoriesAreIncludedInCoupon($coupon, $item->buyable));
+        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($coupon, $item->buyable) && ($this->productIsIncludedInCoupon($coupon, $item->buyable) || $this->productCategoriesAreIncludedInCoupon($coupon, $item->buyable));
     }
 
     public function productIsIncludedInCoupon(Coupon $coupon, Product $product): bool
@@ -258,12 +259,12 @@ class CouponService implements CouponServiceContract
 
     public function cartItemIsExcludedFromCoupon(Coupon $coupon, CartItem $item): bool
     {
-        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($item->buyable) && ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable));
+        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($coupon, $item->buyable) && ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable));
     }
 
-    public function productIsNotOnPromotion(Product $product): bool
+    public function productIsNotOnPromotion(Coupon $coupon, Product $product): bool
     {
-        return is_null($product->price_old) || $product->price_old === $product->price;
+        return !$coupon->exclude_promotions || is_null($product->price_old) || $product->price_old === $product->price;
     }
 
     public function productIsExcludedFromCoupon(Coupon $coupon, Product $product): bool
