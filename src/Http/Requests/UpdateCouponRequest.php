@@ -42,6 +42,7 @@ class UpdateCouponRequest extends FormRequest
             'included_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
             'excluded_categories' => ['sometimes', 'array'],
             'excluded_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
+            'exclude_promotions' => ['sometimes', 'boolean'],
         ];
     }
 
