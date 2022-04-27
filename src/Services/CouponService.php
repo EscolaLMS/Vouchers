@@ -16,6 +16,7 @@ use EscolaLms\Vouchers\Strategies\Contracts\DiscountStrategyContract;
 use EscolaLms\Vouchers\Strategies\NoneDiscountStrategy;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -68,18 +69,18 @@ class CouponService implements CouponServiceContract
     public function createCoupon(array $data): Coupon
     {
         $coupon = new Coupon([
-            'name' => $data['name'] ?? null,
-            'code' => $data['code'],
-            'type' => $data['type'],
-            'active' => $data['active'] ?? false,
-            'active_from' => $data['active_from'] ?? null,
-            'active_to' => $data['active_to'] ?? null,
-            'limit_usage' => $data['limit_usage'] ?? null,
-            'limit_per_user' => $data['limit_per_user'] ?? null,
-            'min_cart_price' => $data['min_cart_price'] ?? null,
-            'max_cart_price' => $data['max_cart_price'] ?? null,
-            'amount' => $data['amount'],
-            'exclude_promotions' => $data['exclude_promotions'] ?? true,
+            'name' => Arr::get($data, 'name'),
+            'code' => Arr::get($data, 'code'),
+            'type' => Arr::get($data, 'type'),
+            'active' => Arr::get($data, 'active', false),
+            'active_from' => Arr::get($data, 'active_from'),
+            'active_to' => Arr::get($data, 'active_to'),
+            'limit_usage' => Arr::get($data, 'limit_usage'),
+            'limit_per_user' => Arr::get($data, 'limit_per_user'),
+            'min_cart_price' => Arr::get($data, 'min_cart_price'),
+            'max_cart_price' => Arr::get($data, 'max_cart_price'),
+            'amount' => Arr::get($data, 'amount'),
+            'exclude_promotions' => Arr::get($data, 'exclude_promotions', true),
         ]);
         $coupon->save();
 
