@@ -3,6 +3,7 @@
 namespace EscolaLms\Vouchers\Http\Controllers\Swagger;
 
 use EscolaLms\Vouchers\Http\Requests\ApplyCouponRequest;
+use EscolaLms\Vouchers\Http\Requests\UnapplyCouponRequest;
 use Illuminate\Http\JsonResponse;
 
 interface VouchersApiControllerSwagger
@@ -60,4 +61,35 @@ interface VouchersApiControllerSwagger
      * )
      */
     public function apply(ApplyCouponRequest $request): JsonResponse;
+
+    /**
+     * @OA\Delete(
+     *      path="/api/cart/voucher",
+     *      summary="Remove Voucher from your Cart",
+     *      tags={"Cart", "Vouchers"},
+     *      description="Remove Voucher from your Cart",
+     *      security={
+     *          {"passport": {}},
+     *      },
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          ),
+     *          @OA\Schema(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
+    public function unapply(UnapplyCouponRequest $request): JsonResponse;
 }

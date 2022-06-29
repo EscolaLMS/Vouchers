@@ -46,6 +46,15 @@ class CartManager extends BaseCartManager implements CartManagerContract
         return $this->getDiscountStrategy()->calculateDiscountForItem($this->getModel(), $item);
     }
 
+    public function removeCoupon(): self
+    {
+        $this->cart->refresh();
+        $this->cart->coupon_id = null;
+        $this->cart->save();
+        $this->cart->refresh();
+        return $this;
+    }
+
     public function setCoupon(?Coupon $coupon): self
     {
         if (!is_null($coupon) && !app(CouponServiceContract::class)->couponCanBeUsedOnCart($coupon, $this->cart)) {

@@ -15,4 +15,5 @@ Route::group(['prefix' => 'api'], function () {
     });
 
     Route::post('/cart/voucher/', [VouchersApiController::class, 'apply']);
+    Route::delete('/cart/voucher/', [VouchersApiController::class, 'unapply']);
 });

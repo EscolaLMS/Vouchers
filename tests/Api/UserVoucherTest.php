@@ -413,4 +413,68 @@ class UserVoucherTest extends TestCase
             'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
         ]);
     }
+
+
+    public function testUnapplyVoucher()
+    {
+        PaymentGateway::fake();
+        Notification::fake();
+
+        /** @var Product $product */
+        $product = Product::factory()->create([
+            'price' => 1000,
+            'tax_rate' => 0,
+        ]);
+        $product2 = Product::factory()->create([
+            'price' => 500,
+            'tax_rate' => 0,
+        ]);
+
+        $user = $this->user;
+
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product->getKey(),
+        ]);
+        $this->response->assertStatus(200);
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/products/', [
+            'id' => $product2->getKey(),
+        ]);
+        $this->response->assertStatus(200);
+
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+
+        $cartDataApi = $this->response->json()['data'];
+
+        $this->assertEquals('1500', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1500', $cartDataApi['total_prediscount']);
+        $this->assertNull($cartDataApi['coupon']);
+
+        $coupon = Coupon::factory()->cart_percent()->create();
+
+        $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
+        $this->response->assertOk();
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+
+        $cartDataApi = $this->response->json()['data'];
+
+        $this->assertEquals('1350', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1350', $cartDataApi['total_prediscount']);
+        $this->assertEquals($coupon->code, $cartDataApi['coupon']);
+
+        $this->response = $this->actingAs($user, 'api')->json('DELETE', '/api/cart/voucher');
+        $this->response->assertOk();
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+
+        $cartDataApi = $this->response->json()['data'];
+
+        $this->assertEquals('1500', $cartDataApi['total']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1500', $cartDataApi['total_prediscount']);
+        $this->assertNull($cartDataApi['coupon']);
+    }
 }
