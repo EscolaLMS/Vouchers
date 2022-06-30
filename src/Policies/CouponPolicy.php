@@ -48,4 +48,9 @@ class CouponPolicy
     {
         return $user->can(VoucherPermissionsEnum::COUPON_USE);
     }
+
+    public function unapply(User $user)
+    {
+        return $user->can(VoucherPermissionsEnum::COUPON_USE);
+    }
 }

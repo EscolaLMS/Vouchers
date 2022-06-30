@@ -10,6 +10,7 @@ interface CartManagerContract extends BaseCartManagerContract
 {
     public function setCoupon(?Coupon $coupon): self;
     public function getCoupon(): ?Coupon;
+    public function removeCoupon(): self;
 
     public function additionalDiscount(): int;
     public function totalPreAdditionalDiscount(): int;
