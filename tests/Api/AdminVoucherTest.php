@@ -54,7 +54,7 @@ class AdminVoucherTest extends TestCase
 
         /** @var TestResponse $response */
         $response = $this->actingAs($this->user, 'api')->json('POST', '/api/admin/vouchers/', $data);
-        $response->assertStatus(405)->assertJsonValidationErrorFor('amount');
+        $response->assertStatus(422)->assertJsonValidationErrorFor('amount');
     }
 
     public function testCreateCouponWithProductsAndUsers()
