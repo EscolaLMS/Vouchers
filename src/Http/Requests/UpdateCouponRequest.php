@@ -10,6 +10,7 @@ use EscolaLms\Vouchers\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateCouponRequest extends FormRequest
 {
@@ -44,6 +45,13 @@ class UpdateCouponRequest extends FormRequest
             'excluded_categories.*' => ['integer', Rule::exists(Category::class, 'id')],
             'exclude_promotions' => ['sometimes', 'boolean'],
         ];
+    }
+
+    public function withValidator(Validator $validator)
+    {
+        $validator->sometimes('amount', 'max:100', function ($input) {
+            return $input->type === CouponTypeEnum::CART_PERCENT ||  $input->type === CouponTypeEnum::PRODUCT_PERCENT;
+        });
     }
 
     public function getCoupon(): Coupon

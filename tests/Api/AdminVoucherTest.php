@@ -9,11 +9,11 @@ use EscolaLms\Vouchers\Http\Resources\CouponResource;
 use EscolaLms\Vouchers\Models\CartItem;
 use EscolaLms\Vouchers\Models\Category;
 use EscolaLms\Vouchers\Models\Coupon;
-use EscolaLms\Vouchers\Models\CouponUser;
 use EscolaLms\Vouchers\Models\User;
 use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use EscolaLms\Vouchers\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Testing\TestResponse;
 
 class AdminVoucherTest extends TestCase
 {
@@ -44,6 +44,17 @@ class AdminVoucherTest extends TestCase
         $this->response->assertJsonFragment([
             'data' => CouponResource::make($couponDb)->toArray(null)
         ]);
+    }
+
+    public function testCantCreatePercentCouponWithAbove100Percent()
+    {
+        $coupon = Coupon::factory()->make();
+        $data = $coupon->toArray();
+        $data['amount'] = 101;
+
+        /** @var TestResponse $response */
+        $response = $this->actingAs($this->user, 'api')->json('POST', '/api/admin/vouchers/', $data);
+        $response->assertStatus(405)->assertJsonValidationErrorFor('amount');
     }
 
     public function testCreateCouponWithProductsAndUsers()
