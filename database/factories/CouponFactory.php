@@ -24,7 +24,7 @@ class CouponFactory extends Factory
             'limit_per_user' => null,
             'min_cart_price' => null,
             'max_cart_price' => null,
-            'amount' => 1000,
+            'amount' => 10,
             'type' => CouponTypeEnum::PRODUCT_PERCENT,
             'exclude_promotions' => true,
         ];
