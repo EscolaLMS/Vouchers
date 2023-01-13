@@ -202,13 +202,9 @@ class CouponService implements CouponServiceContract
         $cart->load('items', 'items.buyable');
 
         $cartManager = new CartManager($cart);
-        $cartContainsItemsIncludedInCoupon = true;
-        if (in_array($coupon->type, [CouponTypeEnum::PRODUCT_PERCENT, CouponTypeEnum::PRODUCT_FIXED])) {
-            $cartContainsItemsIncludedInCoupon = $this->cartContainsItemsIncludedInCoupon($coupon, $cart);
-        }
         return $this->couponIsActive($coupon)
             && $this->couponInPriceRange($coupon, $cartManager->totalPreAdditionalDiscount())
-            && $cartContainsItemsIncludedInCoupon
+            && $this->cartContainsItemsIncludedInCoupon($coupon, $cart)
             && $this->cartContainsItemsNotExcludedFromCoupon($coupon, $cart)
             && $this->userIncludedInCoupon($coupon);
     }
@@ -229,8 +225,7 @@ class CouponService implements CouponServiceContract
 
     public function cartContainsItemsIncludedInCoupon(Coupon $coupon, Cart $cart): bool
     {
-        return ($coupon->includedProducts()->count() === 0 && $coupon->includedCategories()->count() === 0) ||
-            $this->cartItemsIncludedInCoupon($coupon, $cart)->count() > 0;
+        return ($coupon->includedProducts()->count() === 0 && $coupon->includedCategories()->count() === 0) || $this->cartItemsIncludedInCoupon($coupon, $cart)->count() > 0;
     }
 
     public function cartItemsIncludedInCoupon(Coupon $coupon, Cart $cart): Collection
@@ -265,7 +260,7 @@ class CouponService implements CouponServiceContract
 
     public function cartItemIsExcludedFromCoupon(Coupon $coupon, CartItem $item): bool
     {
-        return $item->buyable instanceof Product && ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable)) && $this->productIsNotOnPromotion($coupon, $item->buyable);
+        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($coupon, $item->buyable) && ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable));
     }
 
     public function productIsNotOnPromotion(Coupon $coupon, Product $product): bool
