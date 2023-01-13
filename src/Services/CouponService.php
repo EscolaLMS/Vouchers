@@ -6,6 +6,7 @@ use EscolaLms\Cart\Models\Product;
 use EscolaLms\Core\Dtos\OrderDto;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Vouchers\Dtos\CouponSearchDto;
+use EscolaLms\Vouchers\Enums\CouponTypeEnum;
 use EscolaLms\Vouchers\Models\Cart;
 use EscolaLms\Vouchers\Models\Coupon;
 use EscolaLms\Vouchers\Models\CouponCategory;
@@ -201,10 +202,13 @@ class CouponService implements CouponServiceContract
         $cart->load('items', 'items.buyable');
 
         $cartManager = new CartManager($cart);
-
+        $cartContainsItemsIncludedInCoupon = true;
+        if (in_array($coupon->type, [CouponTypeEnum::PRODUCT_PERCENT, CouponTypeEnum::PRODUCT_FIXED])) {
+            $cartContainsItemsIncludedInCoupon = $this->cartContainsItemsIncludedInCoupon($coupon, $cart);
+        }
         return $this->couponIsActive($coupon)
             && $this->couponInPriceRange($coupon, $cartManager->totalPreAdditionalDiscount())
-            && $this->cartContainsItemsIncludedInCoupon($coupon, $cart)
+            && $cartContainsItemsIncludedInCoupon
             && $this->cartContainsItemsNotExcludedFromCoupon($coupon, $cart)
             && $this->userIncludedInCoupon($coupon);
     }
@@ -236,17 +240,7 @@ class CouponService implements CouponServiceContract
 
     public function cartItemIsIncludedInCoupon(Coupon $coupon, CartItem $item): bool
     {
-        return $item->buyable instanceof Product &&
-            (
-                (
-                    (
-                        $this->productIsIncludedInCoupon($coupon, $item->buyable) ||
-                        $this->productCategoriesAreIncludedInCoupon($coupon, $item->buyable)
-                    )
-                    && $this->productIsNotOnPromotion($coupon, $item->buyable)
-                ) ||
-                !$this->cartItemIsExcludedFromCoupon($coupon, $item)
-            );
+        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($coupon, $item->buyable) && ($this->productIsIncludedInCoupon($coupon, $item->buyable) || $this->productCategoriesAreIncludedInCoupon($coupon, $item->buyable));
     }
 
     public function productIsIncludedInCoupon(Coupon $coupon, Product $product): bool
