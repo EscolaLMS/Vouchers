@@ -204,6 +204,7 @@ class CouponService implements CouponServiceContract
         $cartManager = new CartManager($cart);
         return $this->couponIsActive($coupon)
             && $this->couponInPriceRange($coupon, $cartManager->totalPreAdditionalDiscount())
+            && $this->cartFulfilPromotionConditions($coupon, $cart)
             && $this->cartContainsItemsIncludedInCoupon($coupon, $cart)
             && $this->cartContainsItemsNotExcludedFromCoupon($coupon, $cart)
             && $this->userIncludedInCoupon($coupon);
@@ -220,7 +221,8 @@ class CouponService implements CouponServiceContract
 
     public function couponInPriceRange(Coupon $coupon, int $price): bool
     {
-        return is_null($coupon->min_cart_price) || $price >= $coupon->min_cart_price;
+        return (is_null($coupon->min_cart_price) || $price >= $coupon->min_cart_price)
+            && (is_null($coupon->max_cart_price) || $price <= $coupon->max_cart_price);
     }
 
     public function cartContainsItemsIncludedInCoupon(Coupon $coupon, Cart $cart): bool
@@ -260,7 +262,17 @@ class CouponService implements CouponServiceContract
 
     public function cartItemIsExcludedFromCoupon(Coupon $coupon, CartItem $item): bool
     {
-        return $item->buyable instanceof Product && $this->productIsNotOnPromotion($coupon, $item->buyable) && ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable));
+        return $item->buyable instanceof Product && (!$this->productIsNotOnPromotion($coupon, $item->buyable) || ($this->productIsExcludedFromCoupon($coupon, $item->buyable) || $this->productCategoriesAreExcludedFromCoupon($coupon, $item->buyable)));
+    }
+
+    public function cartFulfilPromotionConditions(Coupon $coupon, Cart $cart): bool
+    {
+        return !$coupon->exclude_promotions || $cart->items->filter(fn (CartItem $item) => $this->productOnPromotion($coupon, $item))->count() === 0;
+    }
+
+    public function productOnPromotion(Coupon $coupon, CartItem $item): bool
+    {
+        return $item->buyable instanceof Product && !$this->productIsNotOnPromotion($coupon, $item->buyable);
     }
 
     public function productIsNotOnPromotion(Coupon $coupon, Product $product): bool

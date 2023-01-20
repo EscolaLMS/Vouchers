@@ -20,6 +20,6 @@ class ProductFixedDiscountStrategy extends DiscountStrategy implements DiscountS
         if (!app(CouponServiceContract::class)->cartItemIsIncludedInCoupon($this->coupon, $cartItem)) {
             return 0;
         }
-        return $this->coupon->amount;
+        return $cartItem->basePrice < $this->coupon->amount ? $cartItem->basePrice : $this->coupon->amount;
     }
 }
