@@ -11,7 +11,7 @@ class CartFixedDiscountStrategy extends DiscountStrategy implements DiscountStra
 {
     public function calculateAdditionalDiscount(Cart $cart): int
     {
-        return $this->coupon->amount;
+        return $cart->totalPreDiscount < $this->coupon->amount ? $cart->totalPreDiscount : $this->coupon->amount;
     }
 
     public function calculateDiscountForItem(Cart $cart, CartItem $cartItem): int

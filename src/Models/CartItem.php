@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read float|int $extra_fees
  * @property-read string $identifier
  * @property-read mixed $price
+ * @property-read mixed $basePrice
  * @property-read mixed $subtotal
  * @property-read int $tax
  * @property-read int $tax_rate
@@ -59,6 +60,11 @@ class CartItem extends BaseCartItem
     public function getPriceAttribute()
     {
         return parent::getPriceAttribute() - $this->discount;
+    }
+
+    public function getBasePriceAttribute()
+    {
+        return parent::getPriceAttribute();
     }
 
     public function getDiscountSubtotalAttribute(): int

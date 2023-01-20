@@ -46,6 +46,23 @@ class AdminVoucherTest extends TestCase
         ]);
     }
 
+    public function testCreateCouponWith100Percent()
+    {
+        $coupon = Coupon::factory()->make();
+        $data = $coupon->toArray();
+        $data['amount'] = 100;
+
+        $this->response = $this->actingAs($this->user, 'api')->json('POST', '/api/admin/vouchers/', $data);
+        $this->response->assertCreated();
+
+        $id = $this->response->json('data.id');
+        $couponDb = Coupon::find($id);
+
+        $this->response->assertJsonFragment([
+            'data' => CouponResource::make($couponDb)->toArray(null)
+        ]);
+    }
+
     public function testCantCreatePercentCouponWithAbove100Percent()
     {
         $coupon = Coupon::factory()->make();
