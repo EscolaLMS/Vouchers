@@ -25,7 +25,9 @@ class CartFixedDiscountStrategy extends DiscountStrategy implements DiscountStra
         $maxAmount = $this->coupon->amount;
 
         foreach ($cart->items as $item) {
-            $totalAmount += $item->basePrice;
+            if (!app(CouponServiceContract::class)->cartItemIsExcludedFromCoupon($this->coupon, $item)) {
+                $totalAmount += $item->basePrice;
+            }
         }
 
         $maxAmount = min($totalAmount, $maxAmount);
