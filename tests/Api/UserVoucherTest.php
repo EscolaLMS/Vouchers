@@ -980,6 +980,29 @@ class UserVoucherTest extends TestCase
         ]);
     }
 
+    public function testApplyCouponCartTotalWithOnlyFreeProduct(): void
+    {
+        Notification::fake();
+
+        $product = Product::factory()->create([
+            'price' => 0,
+        ]);
+
+        $user = $this->user;
+
+        $this->addProductToUserCart($user, $product);
+
+        /** @var Coupon $coupon */
+        $coupon = Coupon::factory()->cart_fixed()->create();
+
+        $this->response = $this->actingAs($user, 'api')
+            ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
+        $this->response->assertOk();
+
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+    }
+
     public function testApplyCouponCartTotalMaxPrice(): void
     {
         Notification::fake();

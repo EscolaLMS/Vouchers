@@ -32,6 +32,6 @@ class CartFixedDiscountStrategy extends DiscountStrategy implements DiscountStra
 
         $maxAmount = min($totalAmount, $maxAmount);
 
-        return round($cartItem->basePrice / $totalAmount * $maxAmount);
+        return $totalAmount > 0 ? round($cartItem->basePrice / $totalAmount * $maxAmount) : 0;
     }
 }
