@@ -20,6 +20,14 @@ class ProductFixedDiscountStrategy extends DiscountStrategy implements DiscountS
         if (!app(CouponServiceContract::class)->cartItemIsIncludedInCoupon($this->coupon, $cartItem)) {
             return 0;
         }
-        return $cartItem->basePrice < $this->coupon->amount ? $cartItem->basePrice : $this->coupon->amount;
+        $tax = (1 + $cartItem->tax_rate / 100);
+        $itemValue = $cartItem->basePrice * $tax;
+        $discount = $itemValue < $this->coupon->amount ? $itemValue : $this->coupon->amount;
+        if ($discount === $itemValue) {
+            return $cartItem->basePrice;
+        }
+        $afterDiscountWithTax = $itemValue - $discount;
+        $afterDiscount = round($afterDiscountWithTax / $tax);
+        return $cartItem->basePrice - $afterDiscount;
     }
 }

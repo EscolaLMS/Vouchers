@@ -827,6 +827,88 @@ class UserVoucherTest extends TestCase
         $this->assertEquals('1000', $cartDataApi['items'][0]['discount']);
     }
 
+    public function testApplyCouponProductFixedWithTax(): void
+    {
+        Notification::fake();
+
+        $product = Product::factory()->create([
+            'price' => 1000,
+            'tax_rate' => 23.0,
+        ]);
+
+        $user = $this->user;
+
+        $this->addProductToUserCart($user, $product);
+
+        /** @var Coupon $coupon */
+        $coupon = Coupon::factory()->product_fixed()->create([
+            'exclude_promotions' => false,
+            'amount' => 100,
+        ]);
+
+        CouponProduct::create([
+            'coupon_id' => $coupon->getKey(),
+            'product_id' => $product->getKey(),
+            'excluded' => false,
+        ]);
+
+        $this->response = $this->actingAs($user, 'api')
+            ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
+        $this->response->assertOk();
+
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+
+        $cartDataApi = $this->response->json()['data'];
+
+        $this->assertEquals('919', $cartDataApi['total']);
+        $this->assertEquals('211', $cartDataApi['tax']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('919', $cartDataApi['total_prediscount']);
+        $this->assertEquals('919', $cartDataApi['items'][0]['price']);
+        $this->assertEquals('919', $cartDataApi['items'][0]['total']);
+        $this->assertEquals('1130', $cartDataApi['items'][0]['total_with_tax']);
+        $this->assertEquals('81', $cartDataApi['items'][0]['discount']);
+    }
+
+    public function testApplyCouponCartFixedWithTax(): void
+    {
+        Notification::fake();
+
+        $product = Product::factory()->create([
+            'price' => 1000,
+            'tax_rate' => 23.0,
+        ]);
+
+        $user = $this->user;
+
+        $this->addProductToUserCart($user, $product);
+
+        /** @var Coupon $coupon */
+        $coupon = Coupon::factory()->cart_fixed()->create([
+            'exclude_promotions' => false,
+            'amount' => 100,
+        ]);
+
+        $this->response = $this->actingAs($user, 'api')
+            ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
+        $this->response->assertOk();
+
+        $this->response = $this->actingAs($user, 'api')->json('GET', '/api/cart');
+        $this->response->assertOk();
+
+        $cartDataApi = $this->response->json()['data'];
+
+        $this->assertEquals('919', $cartDataApi['total']);
+        $this->assertEquals('211', $cartDataApi['tax']);
+        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('919', $cartDataApi['total_prediscount']);
+        $this->assertEquals('919', $cartDataApi['items'][0]['price']);
+        $this->assertEquals('919', $cartDataApi['items'][0]['total']);
+        $this->assertEquals('1130', $cartDataApi['items'][0]['total_with_tax']);
+        $this->assertEquals('81', $cartDataApi['items'][0]['discount']);
+    }
+
     public function testApplyCouponProductNotInCategory(): void
     {
         Notification::fake();
