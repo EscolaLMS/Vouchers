@@ -26,12 +26,20 @@ class CartFixedDiscountStrategy extends DiscountStrategy implements DiscountStra
 
         foreach ($cart->items as $item) {
             if (!app(CouponServiceContract::class)->cartItemIsExcludedFromCoupon($this->coupon, $item)) {
-                $totalAmount += $item->basePrice;
+                $tax = (1 + $item->tax_rate / 100);
+                $totalAmount += $item->basePrice * $tax;
             }
         }
 
         $maxAmount = min($totalAmount, $maxAmount);
 
-        return $totalAmount > 0 ? round($cartItem->basePrice / $totalAmount * $maxAmount) : 0;
+        if ($totalAmount > 0) {
+            $tax = (1 + $cartItem->tax_rate / 100);
+            $itemValue = $cartItem->basePrice * $tax;
+            $discount = round($itemValue / $totalAmount * $maxAmount, 0);
+            return round($discount / $tax, 0);
+        }
+
+        return 0;
     }
 }
