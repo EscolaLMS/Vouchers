@@ -36,10 +36,8 @@ class CartFixedDiscountStrategy extends DiscountStrategy implements DiscountStra
         if ($totalAmount > 0) {
             $tax = (1 + $cartItem->tax_rate / 100);
             $itemValue = $cartItem->basePrice * $tax;
-            $discount = round($itemValue / $totalAmount * $maxAmount);
-            $afterDiscountWithTax = $itemValue - $discount;
-            $afterDiscount = round($afterDiscountWithTax / $tax);
-            return $cartItem->basePrice - $afterDiscount;
+            $discount = round($itemValue / $totalAmount * $maxAmount, 0);
+            return round($discount / $tax, 0);
         }
 
         return 0;

@@ -26,8 +26,6 @@ class ProductFixedDiscountStrategy extends DiscountStrategy implements DiscountS
         if ($discount === $itemValue) {
             return $cartItem->basePrice;
         }
-        $afterDiscountWithTax = $itemValue - $discount;
-        $afterDiscount = round($afterDiscountWithTax / $tax);
-        return $cartItem->basePrice - $afterDiscount;
+        return round($discount / $tax, 0);
     }
 }
