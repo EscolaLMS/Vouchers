@@ -6,6 +6,7 @@ use EscolaLms\Cart\Http\Resources\ProductResource;
 use EscolaLms\Categories\Http\Resources\CategoryResource;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Vouchers\Models\Coupon;
+use EscolaLms\Vouchers\Services\Contracts\CouponServiceContract;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CouponResource extends JsonResource
@@ -17,6 +18,7 @@ class CouponResource extends JsonResource
 
     public function toArray($request)
     {
+        $couponService = app(CouponServiceContract::class);
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -36,6 +38,7 @@ class CouponResource extends JsonResource
             'included_categories' => CategoryResource::collection($this->includedCategories),
             'excluded_categories' => CategoryResource::collection($this->excludedCategories),
             'exclude_promotions' => $this->exclude_promotions,
+            'usages' => $couponService->couponTimesUsed($this->resource),
         ];
     }
 }
