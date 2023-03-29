@@ -59,9 +59,9 @@ class CartManager extends BaseCartManager implements CartManagerContract
     {
         if (!is_null($coupon) && !app(CouponServiceContract::class)->couponCanBeUsedOnCart($coupon, $this->cart)) {
             if (!app(CouponServiceContract::class)->couponIsActive($coupon)) {
-                throw new CouponInactiveException($coupon->code);
+                throw new CouponInactiveException();
             }
-            throw new CouponNotApplicableException($coupon->code);
+            throw new CouponNotApplicableException();
         }
 
         $this->cart->refresh();

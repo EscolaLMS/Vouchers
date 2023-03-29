@@ -374,7 +374,10 @@ class UserVoucherTest extends TestCase
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code is no longer active', ['code' => $coupon->code])
+            'message' => __('Coupon is no longer active'),
+            'data' => [
+                'code' => $coupon->code,
+            ],
         ]);
     }
 
@@ -401,7 +404,10 @@ class UserVoucherTest extends TestCase
         $this->response = $this->actingAs($user, 'api')->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -496,7 +502,10 @@ class UserVoucherTest extends TestCase
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -550,7 +559,10 @@ class UserVoucherTest extends TestCase
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -581,7 +593,10 @@ class UserVoucherTest extends TestCase
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -613,7 +628,10 @@ class UserVoucherTest extends TestCase
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -936,7 +954,10 @@ class UserVoucherTest extends TestCase
         $this->response = $this->actingAs($user, 'api')
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -969,7 +990,10 @@ class UserVoucherTest extends TestCase
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -1031,7 +1055,10 @@ class UserVoucherTest extends TestCase
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
@@ -1058,7 +1085,10 @@ class UserVoucherTest extends TestCase
             ->json('POST', '/api/cart/voucher', ['code' => $coupon->code]);
         $this->response->assertStatus(400);
         $this->response->assertJsonFragment([
-            'message' => __('Coupon :code can not be applied to this Cart', ['code' => $coupon->code])
+            'message' => __('Coupon can not be applied to this Cart'),
+            'data' => [
+                'code' => $coupon->code
+            ],
         ]);
     }
 
