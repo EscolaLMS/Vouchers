@@ -7,8 +7,8 @@ use Exception;
 class CouponInactiveException extends Exception
 {
 
-    public function __construct(string $couponCode)
+    public function __construct()
     {
-        parent::__construct(__('Coupon :code is no longer active', ['code' => $couponCode]));
+        parent::__construct(__('Coupon is no longer active'));
     }
 }
