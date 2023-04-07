@@ -27,7 +27,7 @@ class ListCouponsRequest extends FormRequest
             'active_to' => ['sometimes', 'datetime'],
             'page' => ['sometimes', 'integer'],
             'per_page' => ['sometimes', 'integer'],
-            'order_by' => ['sometimes', Rule::in(['created_at', 'updated_at', 'active_from', 'active_to', 'name', 'code', 'amount', 'limit_usage', 'limit_per_user'])],
+            'order_by' => ['sometimes', Rule::in(['created_at', 'updated_at', 'active_from', 'active_to', 'name', 'code', 'amount', 'limit_usage', 'limit_per_user', 'min_cart_price', 'max_cart_price'])],
             'order' => ['sometimes', Rule::in(['ASC', 'DESC'])],
         ];
     }
