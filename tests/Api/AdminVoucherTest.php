@@ -228,6 +228,34 @@ class AdminVoucherTest extends TestCase
         ]);
     }
 
+    public function testListCouponsOrderByAmount()
+    {
+        $coupon = Coupon::factory()->create([
+            'name' => 'first',
+            'amount' => 30,
+        ]);
+        $coupon2 = Coupon::factory()->create([
+            'name' => 'second',
+            'amount' => 10,
+        ]);
+        $coupon3 = Coupon::factory()->create([
+            'name' => 'second',
+            'amount' => 20,
+        ]);
+
+        $this->response = $this->actingAs($this->user, 'api')->json('GET', '/api/admin/vouchers?order_by=amount&order=ASC');
+
+        $this->assertTrue($this->response->json('data.0.amount') === $coupon2->amount);
+        $this->assertTrue($this->response->json('data.1.amount') === $coupon3->amount);
+        $this->assertTrue($this->response->json('data.2.amount') === $coupon->amount);
+
+        $this->response->assertOk();
+        $this->response->assertJsonCount(3, 'data');
+        $this->response->assertJsonFragment([
+            'data' => CouponResource::collection([$coupon, $coupon2, $coupon3])->toArray(null)
+        ]);
+    }
+
     public function testReadCoupons()
     {
         $coupon = Coupon::factory()->create([
