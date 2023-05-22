@@ -83,7 +83,7 @@ class UserVoucherTest extends TestCase
         $cartDataApi = $this->response->json()['data'];
 
         $this->assertEquals('1350', $cartDataApi['total']);
-        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('150', $cartDataApi['additional_discount']);
         $this->assertEquals('1350', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
 
@@ -158,7 +158,7 @@ class UserVoucherTest extends TestCase
         $cartDataApi = $this->response->json()['data'];
 
         $this->assertEquals('500', $cartDataApi['total']);
-        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1000', $cartDataApi['additional_discount']);
         $this->assertEquals('500', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
 
@@ -458,7 +458,7 @@ class UserVoucherTest extends TestCase
         $cartDataApi = $this->response->json()['data'];
 
         $this->assertEquals('1350', $cartDataApi['total']);
-        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('150', $cartDataApi['additional_discount']);
         $this->assertEquals('1350', $cartDataApi['total_prediscount']);
         $this->assertEquals($coupon->code, $cartDataApi['coupon']);
 
@@ -727,7 +727,7 @@ class UserVoucherTest extends TestCase
         $cartDataApi = $this->response->json()['data'];
 
         $this->assertEquals('0', $cartDataApi['total']);
-        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1000', $cartDataApi['additional_discount']);
         $this->assertEquals('0', $cartDataApi['total_prediscount']);
         $this->assertEquals('0', $cartDataApi['items'][0]['price']);
         $this->assertEquals('0', $cartDataApi['items'][0]['total']);
@@ -802,7 +802,7 @@ class UserVoucherTest extends TestCase
         $cartDataApi = $this->response->json()['data'];
 
         $this->assertEquals('0', $cartDataApi['total']);
-        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1000', $cartDataApi['additional_discount']);
         $this->assertEquals('0', $cartDataApi['total_prediscount']);
         $this->assertEquals('0', $cartDataApi['items'][0]['price']);
         $this->assertEquals('0', $cartDataApi['items'][0]['total']);
@@ -838,7 +838,7 @@ class UserVoucherTest extends TestCase
         $cartDataApi = $this->response->json()['data'];
 
         $this->assertEquals('0', $cartDataApi['total']);
-        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('1000', $cartDataApi['additional_discount']);
         $this->assertEquals('0', $cartDataApi['total_prediscount']);
         $this->assertEquals('0', $cartDataApi['items'][0]['price']);
         $this->assertEquals('0', $cartDataApi['items'][0]['total']);
@@ -919,7 +919,7 @@ class UserVoucherTest extends TestCase
 
         $this->assertEquals('919', $cartDataApi['total']);
         $this->assertEquals('211', $cartDataApi['tax']);
-        $this->assertEquals('0', $cartDataApi['additional_discount']);
+        $this->assertEquals('81', $cartDataApi['additional_discount']);
         $this->assertEquals('919', $cartDataApi['total_prediscount']);
         $this->assertEquals('919', $cartDataApi['items'][0]['price']);
         $this->assertEquals('919', $cartDataApi['items'][0]['total']);

@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int $total
  * @property-read int $total_pre_discount
  * @property-read int $total_with_tax
+ * @property-read int $cart_discount
  * @property-read \Treestoneit\ShoppingCart\Models\CartItemCollection|\EscolaLms\Vouchers\Models\CartItem[] $items
  * @property-read int|null $items_count
  * @property-read \EscolaLms\Cart\Models\User|null $user
@@ -64,5 +65,10 @@ class Cart extends BaseCart
     public function getTotalPreDiscountAttribute(): int
     {
         return $this->cartManager->totalPreAdditionalDiscount();
+    }
+
+    public function getCartDiscountAttribute(): int
+    {
+        return $this->items->sum('discount');
     }
 }
