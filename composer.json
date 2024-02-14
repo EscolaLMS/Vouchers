@@ -3,7 +3,7 @@
   "description": "Escola LMS Vouchers",
   "type": "package",
   "require": {
-    "php": "^7.4|^8.0",
+    "php": ">=7.4",
     "escolalms/cart": "^0.4",
     "escolalms/core": "^1.2"
   },
