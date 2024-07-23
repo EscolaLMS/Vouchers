@@ -247,7 +247,7 @@ class CouponService implements CouponServiceContract
     /**
      * @param Coupon $coupon
      * @param Cart $cart
-     * @return Collection<int, CartItem>
+     * @return Collection<int, CartItem|\EscolaLms\Vouchers\Models\CartItem>
      */
     public function cartItemsIncludedInCoupon(Coupon $coupon, Cart $cart): Collection
     {

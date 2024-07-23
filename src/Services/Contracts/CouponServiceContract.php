@@ -43,7 +43,7 @@ interface CouponServiceContract
     /**
      * @param Coupon $coupon
      * @param Cart $cart
-     * @return Collection<int, CartItem>
+     * @return Collection<int, \Treestoneit\ShoppingCart\Models\CartItem|CartItem>
      */
     public function cartItemsIncludedInCoupon(Coupon $coupon, Cart $cart): Collection;
     public function cartItemIsIncludedInCoupon(Coupon $coupon, CartItem $item): bool;
