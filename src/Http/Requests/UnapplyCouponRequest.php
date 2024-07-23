@@ -13,6 +13,9 @@ class UnapplyCouponRequest extends FormRequest
         return Gate::allows('unapply', Coupon::class);
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public function rules(): array
     {
         return [];

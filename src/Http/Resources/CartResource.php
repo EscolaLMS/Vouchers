@@ -25,6 +25,10 @@ class CartResource extends BaseCartResource
         return CartItemResource::collection($this->getCart()->items);
     }
 
+    /**
+     * @param $request
+     * @return array<string, mixed>
+     */
     public function toArray($request): array
     {
         return array_merge(parent::toArray($request), [

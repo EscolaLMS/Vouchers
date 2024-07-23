@@ -70,6 +70,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Product extends BaseProduct
 {
+    /**
+     * @return BelongsToMany<Coupon>
+     */
     public function coupons(): BelongsToMany
     {
         return $this->belongsToMany(Coupon::class, 'coupons_products', 'product_id', 'coupon_id')->using(CouponProduct::class);

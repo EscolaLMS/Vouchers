@@ -12,12 +12,16 @@ class CouponProductResource extends JsonResource
         parent::__construct($couponProduct);
     }
 
-    public function toArray($request)
+    /**
+     * @param $request
+     * @return array<string, mixed>
+     */
+    public function toArray($request): array
     {
         return [
-            'id' => $this->id,
-            'coupon_id' => $this->coupon_id,
-            'product_id' => $this->product_id,
+            'id' => $this->resource->id,
+            'coupon_id' => $this->resource->coupon_id,
+            'product_id' => $this->resource->product_id,
         ];
     }
 }

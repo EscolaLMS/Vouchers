@@ -13,6 +13,9 @@ class ApplyCouponRequest extends FormRequest
         return Gate::allows('apply', $this->getCoupon());
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [

@@ -19,6 +19,9 @@ class UpdateCouponRequest extends FormRequest
         return Gate::allows('update', $this->getCoupon());
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public function rules(): array
     {
         return [
@@ -47,7 +50,7 @@ class UpdateCouponRequest extends FormRequest
         ];
     }
 
-    public function withValidator(Validator $validator)
+    public function withValidator(Validator $validator): void
     {
         $validator->sometimes('amount', 'max:100', function ($input) {
             return $input->type === CouponTypeEnum::CART_PERCENT ||  $input->type === CouponTypeEnum::PRODUCT_PERCENT;

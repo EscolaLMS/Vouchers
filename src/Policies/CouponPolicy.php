@@ -19,37 +19,37 @@ class CouponPolicy
         $this->couponService = $couponService;
     }
 
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->can(VoucherPermissionsEnum::COUPON_LIST);
     }
 
-    public function view(User $user, Coupon $course)
+    public function view(User $user, Coupon $course): bool
     {
         return $user->can(VoucherPermissionsEnum::COUPON_READ);
     }
 
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->can(VoucherPermissionsEnum::COUPON_CREATE);
     }
 
-    public function update(User $user, Coupon $coupon)
+    public function update(User $user, Coupon $coupon): bool
     {
         return $user->can(VoucherPermissionsEnum::COUPON_UPDATE);
     }
 
-    public function delete(User $user, Coupon $coupon)
+    public function delete(User $user, Coupon $coupon): bool
     {
         return $user->can(VoucherPermissionsEnum::COUPON_DELETE);
     }
 
-    public function apply(User $user, Coupon $coupon)
+    public function apply(User $user, Coupon $coupon): bool
     {
         return $user->can(VoucherPermissionsEnum::COUPON_USE);
     }
 
-    public function unapply(User $user)
+    public function unapply(User $user): bool
     {
         return $user->can(VoucherPermissionsEnum::COUPON_USE);
     }

@@ -16,28 +16,32 @@ class CouponResource extends JsonResource
         parent::__construct($coupon);
     }
 
-    public function toArray($request)
+    /**
+     * @param $request
+     * @return array<string, mixed>
+     */
+    public function toArray($request): array
     {
         $couponService = app(CouponServiceContract::class);
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'code' => $this->code,
-            'type' => $this->type,
-            'active' => $this->active,
-            'active_from' => $this->active_from,
-            'active_to' =>  $this->active_to,
-            'limit_usage' =>  $this->limit_usage,
-            'limit_per_user' =>  $this->limit_per_user,
-            'min_cart_price' => $this->min_cart_price,
-            'max_cart_price' =>  $this->max_cart_price,
-            'amount' =>  $this->amount,
-            'included_products' => ProductResource::collection($this->includedProducts),
-            'excluded_products' => ProductResource::collection($this->excludedProducts),
-            'users' => $this->users->map(fn (User $user) => $user->getKey())->toArray(),
-            'included_categories' => CategoryResource::collection($this->includedCategories),
-            'excluded_categories' => CategoryResource::collection($this->excludedCategories),
-            'exclude_promotions' => $this->exclude_promotions,
+            'id' => $this->resource->id,
+            'name' => $this->resource->name,
+            'code' => $this->resource->code,
+            'type' => $this->resource->type,
+            'active' => $this->resource->active,
+            'active_from' => $this->resource->active_from,
+            'active_to' => $this->resource->active_to,
+            'limit_usage' => $this->resource->limit_usage,
+            'limit_per_user' => $this->resource->limit_per_user,
+            'min_cart_price' => $this->resource->min_cart_price,
+            'max_cart_price' => $this->resource->max_cart_price,
+            'amount' => $this->resource->amount,
+            'included_products' => ProductResource::collection($this->resource->includedProducts),
+            'excluded_products' => ProductResource::collection($this->resource->excludedProducts),
+            'users' => $this->resource->users->map(fn (User $user) => $user->getKey())->toArray(),
+            'included_categories' => CategoryResource::collection($this->resource->includedCategories),
+            'excluded_categories' => CategoryResource::collection($this->resource->excludedCategories),
+            'exclude_promotions' => $this->resource->exclude_promotions,
             'usages' => $couponService->couponTimesUsed($this->resource),
         ];
     }

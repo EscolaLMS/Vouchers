@@ -52,6 +52,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class OrderItem extends BaseOrderItem
 {
+    /**
+     * @return BelongsTo<Order, self>
+     */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

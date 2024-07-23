@@ -40,13 +40,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Cart extends BaseCart
 {
+    /** @var array<int, string> */
     protected $guarded = ['id', 'cartManager'];
 
+    /**
+     * @return BelongsTo<Coupon, self>
+     */
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
     }
 
+    /**
+     * @return HasMany<CartItem>
+     */
     public function items(): HasMany
     {
         return $this->hasMany(CartItem::class);

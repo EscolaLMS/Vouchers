@@ -49,6 +49,7 @@ class CartManager extends BaseCartManager implements CartManagerContract
     public function removeCoupon(): self
     {
         $this->cart->refresh();
+        // @phpstan-ignore-next-line
         $this->cart->coupon_id = null;
         $this->cart->save();
         $this->cart->refresh();
@@ -57,6 +58,7 @@ class CartManager extends BaseCartManager implements CartManagerContract
 
     public function setCoupon(?Coupon $coupon): self
     {
+        // @phpstan-ignore-next-line
         if (!is_null($coupon) && !app(CouponServiceContract::class)->couponCanBeUsedOnCart($coupon, $this->cart)) {
             if (!app(CouponServiceContract::class)->couponIsActive($coupon)) {
                 throw new CouponInactiveException();
@@ -65,6 +67,7 @@ class CartManager extends BaseCartManager implements CartManagerContract
         }
 
         $this->cart->refresh();
+        // @phpstan-ignore-next-line
         $this->cart->coupon_id = $coupon->getKey();
         $this->cart->save();
         $this->cart->refresh();

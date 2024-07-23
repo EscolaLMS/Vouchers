@@ -37,7 +37,7 @@ class CartFixedDiscountStrategy extends DiscountStrategy implements DiscountStra
             $tax = (1 + $cartItem->tax_rate / 100);
             $itemValue = $cartItem->basePrice * $tax;
             $discount = round($itemValue / $totalAmount * $maxAmount, 0);
-            return round($discount / $tax, 0);
+            return (int) round($discount / $tax, 0);
         }
 
         return 0;

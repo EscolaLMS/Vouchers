@@ -47,12 +47,15 @@ class Category extends BaseCategory
 {
     use HasFactory;
 
+    /**
+     * @return BelongsToMany<Coupon>
+     */
     public function coupons(): BelongsToMany
     {
         return $this->belongsToMany(Coupon::class, 'coupons_categories', 'category_id', 'coupon_id')->using(CouponCategory::class);
     }
 
-    protected static function newFactory()
+    protected static function newFactory(): CategoryFactory
     {
         return new CategoryFactory();
     }

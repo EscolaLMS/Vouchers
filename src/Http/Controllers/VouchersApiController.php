@@ -3,6 +3,7 @@
 namespace EscolaLms\Vouchers\Http\Controllers;
 
 use EscolaLms\Core\Http\Controllers\EscolaLmsBaseController;
+use EscolaLms\Core\Models\User;
 use EscolaLms\Vouchers\Exceptions\CouponInactiveException;
 use EscolaLms\Vouchers\Exceptions\CouponNotApplicableException;
 use EscolaLms\Vouchers\Http\Controllers\Swagger\VouchersApiControllerSwagger;
@@ -23,7 +24,9 @@ class VouchersApiController extends EscolaLmsBaseController implements VouchersA
     public function apply(ApplyCouponRequest $request): JsonResponse
     {
         try {
-            $cart = $this->shopService->cartForUser($request->user());
+            /** @var User $user */
+            $user = $request->user();
+            $cart = $this->shopService->cartForUser($user);
             $cartManager = $cart->cart_manager;
             $cartManager->setCoupon($request->getCoupon());
         } catch (CouponInactiveException $ex) {
@@ -36,7 +39,9 @@ class VouchersApiController extends EscolaLmsBaseController implements VouchersA
 
     public function unapply(UnapplyCouponRequest $request): JsonResponse
     {
-        $cart = $this->shopService->cartForUser($request->user());
+        /** @var User $user */
+        $user = $request->user();
+        $cart = $this->shopService->cartForUser($user);
         $cartManager = $cart->cart_manager;
         $cartManager->removeCoupon();
         return $this->sendSuccess(__("Coupon removed from cart"));
