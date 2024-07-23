@@ -47,22 +47,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CartItem extends BaseCartItem
 {
+    /**
+     * @return BelongsTo<Cart, self>
+     */
     public function cart(): BelongsTo
     {
         return $this->belongsTo(Cart::class);
     }
 
-    public function getSubtotalAttribute()
+    public function getSubtotalAttribute(): float
     {
         return parent::getSubtotalAttribute() - $this->discountSubtotal;
     }
 
-    public function getPriceAttribute()
+    public function getPriceAttribute(): float|null
     {
         return parent::getPriceAttribute() - $this->discount;
     }
 
-    public function getBasePriceAttribute()
+    public function getBasePriceAttribute(): float|null
     {
         return parent::getPriceAttribute();
     }

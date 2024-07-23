@@ -80,21 +80,33 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class User extends CartUser
 {
+    /**
+     * @return HasMany<Order>
+     */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class, 'user_id');
     }
 
+    /**
+     * @return HasOne<Cart>
+     */
     public function cart(): HasOne
     {
         return $this->hasOne(Cart::class, 'user_id');
     }
 
+    /**
+     * @return BelongsToMany<Product>
+     */
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'products_users', 'user_id', 'product_id');
     }
 
+    /**
+     * @return BelongsToMany<Coupon>
+     */
     public function coupons(): BelongsToMany
     {
         return $this->belongsToMany(Coupon::class, 'coupon_user', 'user_id', 'coupon_id')->using(CouponUser::class);

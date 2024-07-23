@@ -63,6 +63,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Order extends BaseOrder
 {
+    /**
+     * @return BelongsTo<Coupon, self>
+     */
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);

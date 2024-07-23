@@ -27,13 +27,22 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class CouponUser extends Pivot
 {
+    /**
+     * @var array<int, string>
+     */
     public $guarded = ['id'];
 
+    /**
+     * @return BelongsTo<Coupon, self>
+     */
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
     }
 
+    /**
+     * @return BelongsTo<User, self>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

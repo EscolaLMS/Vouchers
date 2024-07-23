@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Vouchers\Models;
 
+use EscolaLms\Payments\Services\PaymentsService;
 use EscolaLms\Vouchers\Database\Factories\CouponFactory;
 use EscolaLms\Vouchers\Enums\CouponTypeEnum;
 use EscolaLms\Vouchers\Models\Product;
@@ -110,7 +111,7 @@ use NumberFormatter;
  *          @OA\Items(type="boolean")
  *      ),
  * )
- * 
+ *
  * @property int $id
  * @property string|null $name
  * @property string $code
@@ -126,6 +127,7 @@ use NumberFormatter;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property bool $exclude_promotions
+ * @property int $value
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Cart[] $carts
  * @property-read int|null $carts_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\EscolaLms\Vouchers\Models\Category[] $categories
@@ -194,57 +196,84 @@ class Coupon extends Model
         }
     }
 
+    /**
+     * @return BelongsToMany<User>
+     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'coupon_user', 'coupon_id', 'user_id')->using(CouponUser::class);
     }
 
+    /**
+     * @return BelongsToMany<Product>
+     */
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'coupons_products', 'coupon_id', 'product_id')->using(CouponProduct::class);
     }
 
+    /**
+     * @return BelongsToMany<Product>
+     */
     public function includedProducts(): BelongsToMany
     {
         return $this->products()->wherePivot('excluded', false);
     }
 
+    /**
+     * @return BelongsToMany<Product>
+     */
     public function excludedProducts(): BelongsToMany
     {
         return $this->products()->wherePivot('excluded', true);
     }
 
+    /**
+     * @return BelongsToMany<Category>
+     */
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 'coupons_categories', 'coupon_id', 'category_id')->using(CouponCategory::class);
     }
 
+    /**
+     * @return BelongsToMany<Category>
+     */
     public function includedCategories(): BelongsToMany
     {
         return $this->categories()->wherePivot('excluded', false);
     }
 
+    /**
+     * @return BelongsToMany<Category>
+     */
     public function excludedCategories(): BelongsToMany
     {
         return $this->categories()->wherePivot('excluded', true);
     }
 
+    /**
+     * @return HasMany<Cart>
+     */
     public function carts(): HasMany
     {
         return $this->hasMany(Cart::class);
     }
 
+    /**
+     * @return HasMany<Order>
+     */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }
 
-    protected static function newFactory()
+    protected static function newFactory(): CouponFactory
     {
         return new CouponFactory();
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         parent::booted();
         self::saving(function (Coupon $coupon) {

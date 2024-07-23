@@ -24,8 +24,8 @@ class ProductFixedDiscountStrategy extends DiscountStrategy implements DiscountS
         $itemValue = $cartItem->basePrice * $tax;
         $discount = $itemValue < $this->coupon->amount ? $itemValue : $this->coupon->amount;
         if ($discount === $itemValue) {
-            return $cartItem->basePrice;
+            return (int) $cartItem->basePrice;
         }
-        return round($discount / $tax, 0);
+        return (int) round($discount / $tax, 0);
     }
 }

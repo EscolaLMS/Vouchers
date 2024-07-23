@@ -20,13 +20,16 @@ class EscolaLmsVouchersServiceProvider extends ServiceProvider
 {
     const CONFIG_KEY = 'escolalms_vouchers';
 
-    public $singletons = [
+    /**
+     * @var array<class-string, class-string>
+     */
+    public array $singletons = [
         CouponServiceContract::class => CouponService::class,
         OrderServiceContract::class => OrderService::class,
         ShopServiceContract::class => ShopService::class,
     ];
 
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/config.php', self::CONFIG_KEY);
 
@@ -40,7 +43,7 @@ class EscolaLmsVouchersServiceProvider extends ServiceProvider
         $this->app->register(AuthServiceProvider::class);
     }
 
-    public function boot()
+    public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/routes.php');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'coupon');
@@ -53,7 +56,7 @@ class EscolaLmsVouchersServiceProvider extends ServiceProvider
         }
     }
 
-    public function bootForConsole()
+    public function bootForConsole(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 

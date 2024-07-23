@@ -32,6 +32,9 @@ class CouponCategory extends Pivot
 {
     use HasTimestamps;
 
+    /**
+     * @var array<int, string>
+     */
     public $guarded = ['id'];
 
     protected $table = 'coupons_categories';
@@ -40,11 +43,17 @@ class CouponCategory extends Pivot
         'excluded' => 'bool'
     ];
 
+    /**
+     * @return BelongsTo<Coupon, self>
+     */
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
     }
 
+    /**
+     * @return BelongsTo<Category, self>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

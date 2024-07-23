@@ -28,7 +28,7 @@ class VouchersAdminApiController extends EscolaLmsBaseController implements Vouc
         $orderDto = OrderDto::instantiateFromRequest($request);
         $searchCouponsDto = $request->toDto();
         $paginatedResults = $this->couponsService->searchAndPaginateCoupons($searchCouponsDto, $orderDto);
-        return $this->sendResponseForResource(CouponResource::collection($paginatedResults, __('Coupons search results')));
+        return $this->sendResponseForResource(CouponResource::collection($paginatedResults), ('Coupons search results'));
     }
 
     public function create(CreateCouponRequest $request): JsonResponse

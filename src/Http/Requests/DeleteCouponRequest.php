@@ -13,6 +13,9 @@ class DeleteCouponRequest extends FormRequest
         return Gate::allows('delete', $this->getCoupon());
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public function rules(): array
     {
         return [];

@@ -20,6 +20,7 @@ class ProductPercentDiscountStrategy extends DiscountStrategy implements Discoun
         if (!app(CouponServiceContract::class)->cartItemIsIncludedInCoupon($this->coupon, $cartItem)) {
             return 0;
         }
-        return round($this->coupon->amount * $cartItem->buyable->getBuyablePrice() / 100, 0);
+        // @phpstan-ignore-next-line
+        return (int) round($this->coupon->amount * $cartItem->buyable->getBuyablePrice() / 100, 0);
     }
 }
