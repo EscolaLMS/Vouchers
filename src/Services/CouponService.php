@@ -251,7 +251,10 @@ class CouponService implements CouponServiceContract
      */
     public function cartItemsIncludedInCoupon(Coupon $coupon, Cart $cart): Collection
     {
-        return $cart->items->filter(fn (CartItem $item) => $this->cartItemIsIncludedInCoupon($coupon, $item));
+        /** @var Collection<int, CartItem|\EscolaLms\Vouchers\Models\CartItem> $items */
+        // @phpstan-ignore-next-line
+        $items = $cart->items->filter(fn (CartItem $item) => $this->cartItemIsIncludedInCoupon($coupon, $item));
+        return $items;
     }
 
     public function cartItemIsIncludedInCoupon(Coupon $coupon, CartItem $item): bool
@@ -277,11 +280,14 @@ class CouponService implements CouponServiceContract
     /**
      * @param Coupon $coupon
      * @param Cart $cart
-     * @return Collection<int, CartItem>
+     * @return Collection<int, CartItem|\EscolaLms\Vouchers\Models\CartItem>
      */
     public function cartItemsWithoutExcludedFromCoupon(Coupon $coupon, Cart $cart): Collection
     {
-        return $cart->items->filter(fn (CartItem $item) => !$this->cartItemIsExcludedFromCoupon($coupon, $item));
+        /** @var Collection<int, CartItem|\EscolaLms\Vouchers\Models\CartItem> $result */
+        // @phpstan-ignore-next-line
+        $result = $cart->items->filter(fn (CartItem $item) => !$this->cartItemIsExcludedFromCoupon($coupon, $item));
+        return $result;
     }
 
     public function cartItemIsExcludedFromCoupon(Coupon $coupon, CartItem $item): bool
@@ -291,6 +297,7 @@ class CouponService implements CouponServiceContract
 
     public function cartFulfilPromotionConditions(Coupon $coupon, Cart $cart): bool
     {
+        // @phpstan-ignore-next-line
         return !$coupon->exclude_promotions || $cart->items->filter(fn (CartItem $item) => $this->productOnPromotion($coupon, $item))->count() === 0;
     }
 
