@@ -10,9 +10,10 @@
   "require-dev": {
     "barryvdh/laravel-ide-helper": "^2.12",
     "escolalms/settings": "^0.1.91",
-    "nunomaduro/collision": "^5.11",
-    "orchestra/testbench": "^5.0|^6.0",
-    "phpunit/phpunit": "^9.0"
+    "nunomaduro/collision": ">=5.11",
+    "orchestra/testbench": ">=5.0",
+    "phpunit/phpunit": "^9.0",
+    "nunomaduro/larastan": "^2.0"
   },
   "suggest": {},
   "license": "MIT",
