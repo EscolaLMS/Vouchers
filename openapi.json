@@ -370,5 +370,19 @@
                 "type": "object"
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Admin Vouchers",
+            "description": "Admin Vouchers"
+        },
+        {
+            "name": "Cart",
+            "description": "Cart"
+        },
+        {
+            "name": "Vouchers",
+            "description": "Vouchers"
+        }
+    ]
 }
