@@ -18,7 +18,9 @@ class OrderService extends BaseOrderService implements OrderServiceContract
     // @phpstan-ignore-next-line
     public function find($id): Model
     {
-        return Order::findOrFail($id);
+        /** @var Order $order */
+        $order = Order::findOrFail($id);
+        return $order;
     }
 
     public function createOrderFromCart(BaseCart $cart, ?ClientDetailsDto $clientDetailsDto = null): Order
