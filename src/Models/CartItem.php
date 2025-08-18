@@ -55,7 +55,7 @@ class CartItem extends BaseCartItem
         return $this->belongsTo(Cart::class);
     }
 
-    public function getSubtotalAttribute(): float
+    public function getSubtotalAttribute(): int
     {
         return parent::getSubtotalAttribute() - $this->discountSubtotal;
     }
